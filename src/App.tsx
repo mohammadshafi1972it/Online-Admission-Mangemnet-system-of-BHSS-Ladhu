@@ -170,6 +170,7 @@ export default function App() {
                   setSelectedCandidate(newCandidate);
                 }}
                 onOpenDocuments={userRole === 'incharge' ? handleOpenDocuments : undefined}
+                userRole={userRole}
               />
             )}
 

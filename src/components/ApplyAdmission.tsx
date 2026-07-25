@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Candidate } from '../types';
+import { Candidate, UserRole } from '../types';
 import { submitAdmissionForm, deleteCandidateRecord } from '../utils/api';
 import { calculateCourseFees } from '../utils/feeCalculator';
 import { generateQRCodeDataUrl, buildCandidateQRPayload } from '../utils/qr';
@@ -30,15 +30,17 @@ import {
   Percent,
   X,
   Trash2,
-  RotateCcw
+  RotateCcw,
+  Send
 } from 'lucide-react';
 
 interface ApplyAdmissionProps {
   onSuccessSubmitted: (newCandidate: Candidate) => void;
-  onOpenDocuments: (candidate: Candidate, docType: string) => void;
+  onOpenDocuments?: (candidate: Candidate, docType: string) => void;
+  userRole?: UserRole;
 }
 
-export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitted, onOpenDocuments }) => {
+export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitted, onOpenDocuments, userRole = 'incharge' }) => {
   const [formData, setFormData] = useState({
     admNo: 'ADM-2026-102',
     classWishToJoin: '11th Class',
@@ -482,28 +484,30 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
             {/* Action buttons */}
             <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-200">
               <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (window.confirm(`Are you sure you want to permanently delete submitted admission form for "${submittedCandidate.fullName}" (${submittedCandidate.id})?`)) {
-                      setLoading(true);
-                      try {
-                        await deleteCandidateRecord(submittedCandidate.id);
-                        alert('Admission form record deleted successfully.');
-                        setSubmittedCandidate(null);
-                        onSuccessSubmitted({ id: submittedCandidate.id } as Candidate);
-                      } catch (err) {
-                        alert('Failed to delete application record.');
-                      } finally {
-                        setLoading(false);
+                {userRole === 'incharge' && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (window.confirm(`Are you sure you want to permanently delete submitted admission form for "${submittedCandidate.fullName}" (${submittedCandidate.id})?`)) {
+                        setLoading(true);
+                        try {
+                          await deleteCandidateRecord(submittedCandidate.id);
+                          alert('Admission form record deleted successfully.');
+                          setSubmittedCandidate(null);
+                          onSuccessSubmitted({ id: submittedCandidate.id } as Candidate);
+                        } catch (err) {
+                          alert('Failed to delete application record.');
+                        } finally {
+                          setLoading(false);
+                        }
                       }
-                    }
-                  }}
-                  className="text-xs font-bold text-rose-700 hover:text-rose-900 transition flex items-center gap-1.5 px-3 py-2 rounded-lg border border-rose-300 bg-rose-50 hover:bg-rose-100 cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4 text-rose-600" />
-                  Delete Application
-                </button>
+                    }}
+                    className="text-xs font-bold text-rose-700 hover:text-rose-900 transition flex items-center gap-1.5 px-3 py-2 rounded-lg border border-rose-300 bg-rose-50 hover:bg-rose-100 cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4 text-rose-600" />
+                    Delete Application
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -1745,12 +1749,12 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                     {loading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Saving & Generating PDF...
+                        Submitting Application & Saving...
                       </>
                     ) : (
                       <>
-                        <Printer className="w-5 h-5" />
-                        Save Application in PDF / Print in A4
+                        <Send className="w-5 h-5" />
+                        Submit Admission Application & Save PDF
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}

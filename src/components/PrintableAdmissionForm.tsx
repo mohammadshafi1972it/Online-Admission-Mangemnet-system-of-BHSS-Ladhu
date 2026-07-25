@@ -2,7 +2,7 @@ import React from 'react';
 import { Candidate } from '../types';
 import { calculateGradeAndPercentage } from '../utils/grade';
 import { triggerPrint } from '../utils/print';
-import { Printer, X } from 'lucide-react';
+import { Printer, X, Check } from 'lucide-react';
 
 interface PrintableAdmissionFormProps {
   candidate: Candidate;
@@ -18,6 +18,32 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
   const isSecondary = candidate.classWishToJoin === '9th Class' || candidate.classWishToJoin === '10th Class';
   const gradeCalc = calculateGradeAndPercentage(candidate.marksObtained, candidate.totalMarks);
 
+  // Helper to test if a subject is in the candidate's selected major/elective subjects
+  const isSubjectSelected = (subjectName: string): boolean => {
+    if (!candidate.majorSubjects) return false;
+    const subjects = candidate.majorSubjects.toLowerCase();
+    const target = subjectName.toLowerCase();
+
+    if (target === 'physics') return subjects.includes('physics');
+    if (target === 'chemistry') return subjects.includes('chemistry');
+    if (target === 'biology') return subjects.includes('biology');
+    if (target === 'mathematics') return subjects.includes('math') || subjects.includes('mathematics');
+    if (target === 'education') return subjects.includes('education');
+    if (target === 'economics') return subjects.includes('economics');
+    if (target === 'political science') return subjects.includes('political') || subjects.includes('pol');
+    if (target === 'history') return subjects.includes('history');
+    if (target === 'urdu') return subjects.includes('urdu');
+    if (target.includes('it') || target.includes('ites')) return subjects.includes('it') || subjects.includes('ites');
+    if (target.includes('tourism') || target.includes('hospitality')) return subjects.includes('tourism') || subjects.includes('hospitality');
+
+    return subjects.includes(target);
+  };
+
+  const streamText = (candidate.streamOpted || candidate.courseApplied || '').toLowerCase();
+  const isScienceStream = streamText.includes('science') || streamText.includes('medical');
+  const isHumanitiesStream = streamText.includes('arts') || streamText.includes('humanities');
+  const isVocationalStream = streamText.includes('vocational') || streamText.includes('skill') || streamText.includes('it') || streamText.includes('tourism');
+
   return (
     <div id="printable-admission-form" className="bg-white text-slate-900 font-sans p-6 sm:p-10 max-w-4xl mx-auto shadow-2xl border border-slate-300 print:shadow-none print:border-none print:p-0">
       {/* Print Trigger Bar for Screen View */}
@@ -27,7 +53,7 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
             <Printer className="w-5 h-5 text-blue-400" />
             Official BHSS Ladhoo Pampore Admission Form
           </h3>
-          <p className="text-xs text-slate-300 mt-0.5">Formatted according to institutional paper application layout</p>
+          <p className="text-xs text-slate-300 mt-0.5">Prints only submitted candidate information within institutional template</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
@@ -78,7 +104,7 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
           <div className="shrink-0 text-right">
             <div className="border-2 border-slate-900 px-3 py-1 text-center bg-slate-50">
               <span className="text-[10px] font-bold uppercase block text-slate-700">Adm. No.</span>
-              <span className="text-sm font-mono font-bold text-slate-900">{candidate.admNo || candidate.id}</span>
+              <span className="text-sm font-mono font-bold text-slate-900">{candidate.admNo || candidate.id || '—'}</span>
             </div>
           </div>
         </div>
@@ -88,7 +114,7 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
           <div className="flex items-center gap-2">
             <span className="font-bold text-sm text-slate-900">Class You Wish to Join:</span>
             <div className="border-2 border-slate-900 px-4 py-1 text-sm font-bold min-w-[120px] text-center bg-slate-50">
-              {candidate.classWishToJoin || candidate.courseApplied}
+              {candidate.classWishToJoin || candidate.courseApplied || '—'}
             </div>
           </div>
 
@@ -113,21 +139,21 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs uppercase w-44 shrink-0">Board Registration No:</span>
               <div className="flex-1 border-2 border-slate-900 px-3 py-1 font-mono text-xs font-bold bg-slate-50 h-8 flex items-center">
-                {candidate.boardRegNo || candidate.prevRollNumber || 'N/A'}
+                {candidate.boardRegNo || '—'}
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs uppercase w-44 shrink-0">Aadhaar No:</span>
               <div className="flex-1 border-2 border-slate-900 px-3 py-1 font-mono text-xs font-bold bg-slate-50 h-8 flex items-center">
-                {candidate.aadharNumber || 'N/A'}
+                {candidate.aadharNumber || '—'}
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs uppercase w-44 shrink-0">Bank A/C:</span>
               <div className="flex-1 border-2 border-slate-900 px-3 py-1 font-mono text-xs font-bold bg-slate-50 h-8 flex items-center">
-                {candidate.bankAccountNo || 'N/A'}
+                {candidate.bankAccountNo || '—'}
               </div>
             </div>
           </div>
@@ -152,65 +178,65 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
           <div className="flex border-b border-slate-300 pb-1">
             <span className="w-6 font-bold">1.</span>
             <span className="w-64 font-bold">Name of the Candidate (Capital Letters):</span>
-            <span className="flex-1 font-bold uppercase text-slate-900 text-sm tracking-wide">{candidate.fullName}</span>
-          </div>
-
-          <div className="flex border-b border-slate-300 pb-1">
-            <span className="w-6 font-bold">1.</span>
-            <span className="w-64 font-bold">Fathers Name:</span>
-            <span className="flex-1 font-bold uppercase text-slate-900">{candidate.fatherName}</span>
+            <span className="flex-1 font-bold uppercase text-slate-900 text-sm tracking-wide">{candidate.fullName || '—'}</span>
           </div>
 
           <div className="flex border-b border-slate-300 pb-1">
             <span className="w-6 font-bold">2.</span>
-            <span className="w-64 font-bold">Mothers Name:</span>
-            <span className="flex-1 font-bold uppercase text-slate-900">{candidate.motherName || 'N/A'}</span>
+            <span className="w-64 font-bold">Father's Name:</span>
+            <span className="flex-1 font-bold uppercase text-slate-900">{candidate.fatherName || '—'}</span>
           </div>
 
           <div className="flex border-b border-slate-300 pb-1">
             <span className="w-6 font-bold">3.</span>
-            <span className="w-64 font-bold">Permanent Home Address:</span>
-            <span className="flex-1 text-slate-900">{candidate.address}</span>
+            <span className="w-64 font-bold">Mother's Name:</span>
+            <span className="flex-1 font-bold uppercase text-slate-900">{candidate.motherName || '—'}</span>
           </div>
 
           <div className="flex border-b border-slate-300 pb-1">
             <span className="w-6 font-bold">4.</span>
+            <span className="w-64 font-bold">Permanent Home Address:</span>
+            <span className="flex-1 text-slate-900">{candidate.address || '—'}</span>
+          </div>
+
+          <div className="flex border-b border-slate-300 pb-1">
+            <span className="w-6 font-bold">5.</span>
             <span className="w-64 font-bold">Occupation of the Father:</span>
-            <span className="flex-1 text-slate-900">{candidate.fatherOccupation || 'Service / Agriculture'}</span>
+            <span className="flex-1 text-slate-900">{candidate.fatherOccupation || '—'}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-4 border-b border-slate-300 pb-1">
             <div className="flex items-center gap-2">
-              <span className="font-bold">5. Blood Group:</span>
+              <span className="font-bold">6. Blood Group:</span>
               <span className="border-2 border-slate-900 px-3 py-0.5 text-center font-bold bg-slate-50 min-w-[80px]">
-                {candidate.bloodGroup || 'O+'}
+                {candidate.bloodGroup || '—'}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Height:</span>
               <span className="border-2 border-slate-900 px-3 py-0.5 text-center font-bold bg-slate-50 min-w-[80px]">
-                {candidate.height || "5'6\""}
+                {candidate.height || '—'}
               </span>
             </div>
           </div>
 
           <div className="flex border-b border-slate-300 pb-1 items-center gap-2">
-            <span className="w-6 font-bold">6.</span>
-            <span className="w-40 font-bold">PEN Number No:</span>
+            <span className="w-6 font-bold">7.</span>
+            <span className="w-40 font-bold">PEN Number:</span>
             <div className="flex-1 border-2 border-slate-900 px-3 py-0.5 font-mono font-bold bg-slate-50">
-              {candidate.penNumber || 'PEN-2026-8809'}
+              {candidate.penNumber || '—'}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 border-b border-slate-300 pb-1">
             <div className="flex items-center gap-2">
-              <span className="font-bold">7. Ration Card Detail:</span>
+              <span className="font-bold">8. Ration Card Detail:</span>
               <span className="border-2 border-slate-900 px-3 py-0.5 font-bold bg-slate-50">
-                {candidate.rationCardDetail || 'APL'}
+                {candidate.rationCardDetail || '—'}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">8. Social Category:</span>
+              <span className="font-bold">Social Category:</span>
               <span className="border-2 border-slate-900 px-3 py-0.5 font-bold bg-slate-50 min-w-[80px] text-center">
                 {candidate.socialCategory || candidate.category || 'General'}
               </span>
@@ -221,7 +247,7 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
             <span className="w-6 font-bold">9.</span>
             <span className="w-40 font-bold">Parent Contact No:</span>
             <div className="flex-1 border-2 border-slate-900 px-3 py-0.5 font-mono font-bold bg-slate-50">
-              {candidate.parentContactNo || candidate.mobile}
+              {candidate.parentContactNo || candidate.mobile || '—'}
             </div>
           </div>
 
@@ -230,13 +256,13 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
               <span className="w-6 font-bold">10.</span>
               <span className="font-bold">Date of Birth:</span>
               <span className="border-2 border-slate-900 px-3 py-0.5 font-mono font-bold bg-slate-50">
-                {candidate.dob}
+                {candidate.dob || '—'}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Gender:</span>
               <span className="border-2 border-slate-900 px-3 py-0.5 font-bold uppercase bg-slate-50">
-                {candidate.gender || 'Male'}
+                {candidate.gender || '—'}
               </span>
             </div>
           </div>
@@ -259,21 +285,22 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
 
         {/* 12. Subjects for Secondary (For 9th and 10th Class Students) */}
         <div className="mt-4 pt-2">
-          <p className="font-bold text-xs uppercase mb-2 text-slate-900">
-            12 Subjects for Secondary (For 9th and 10th Class Students):
+          <p className="font-bold text-xs uppercase mb-2 text-slate-900 flex items-center justify-between">
+            <span>12 Subjects for Secondary (For 9th and 10th Class Students):</span>
+            {isSecondary && <span className="text-[10px] text-blue-800 bg-blue-100 px-2 py-0.5 rounded font-bold">✓ Active Secondary Level</span>}
           </p>
           <div className="grid grid-cols-7 border-2 border-slate-900 text-[10px] text-center font-bold uppercase divide-x-2 divide-slate-900 bg-slate-50">
-            <div className={`p-1.5 ${isSecondary ? 'bg-blue-100 text-blue-900' : ''}`}>ENGLISH</div>
-            <div className={`p-1.5 ${isSecondary ? 'bg-blue-100 text-blue-900' : ''}`}>MATHEMATICS</div>
-            <div className={`p-1.5 ${isSecondary ? 'bg-blue-100 text-blue-900' : ''}`}>SCIENCE</div>
-            <div className={`p-1.5 ${isSecondary ? 'bg-blue-100 text-blue-900' : ''}`}>SOCIAL SCIENCE</div>
-            <div className={`p-1.5 ${isSecondary ? 'bg-blue-100 text-blue-900' : ''}`}>URDU</div>
-            <div className={`p-1.5 ${isSecondary ? 'bg-blue-100 text-blue-900' : ''}`}>IT&ITES</div>
-            <div className={`p-1.5 ${isSecondary ? 'bg-blue-100 text-blue-900' : ''}`}>Tourism & Hospitality</div>
+            {['ENGLISH', 'MATHEMATICS', 'SCIENCE', 'SOCIAL SCIENCE', 'URDU', 'IT&ITES', 'Tourism & Hospitality'].map((sub) => {
+              const selected = isSecondary || isSubjectSelected(sub);
+              return (
+                <div key={sub} className={`p-1.5 flex flex-col items-center justify-center ${selected ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
+                  {selected && <span className="text-[9px] text-emerald-400">✓</span>}
+                  <span>{sub}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
-
-        {/* PAGE BREAK FOR PRINT */}
       </div>
 
       {/* FORM CONTAINER - PAGE 2 */}
@@ -283,61 +310,79 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between border-2 border-slate-900 p-2 bg-slate-100">
               <span className="font-extrabold text-sm uppercase">13 Stream Opted:</span>
-              <span className="font-black text-base uppercase tracking-wider text-blue-900">
-                {candidate.streamOpted || candidate.courseApplied || 'SCIENCE / HUMANITIES'}
+              <span className="font-black text-base uppercase tracking-wider text-blue-900 px-3 py-0.5 bg-white border border-slate-400">
+                {candidate.streamOpted || candidate.courseApplied || '—'}
               </span>
             </div>
 
             <div className="border-2 border-slate-900 p-3 bg-white space-y-2">
-              <p className="font-extrabold text-xs uppercase">14 Subject Combination Chosen:</p>
+              <p className="font-extrabold text-xs uppercase">14 Subject Combination Chosen (Selected items checked below):</p>
               <p className="text-xs font-bold text-slate-800">
-                Compulsory Subject : <span className="underline font-black text-blue-900">General English</span>
+                Compulsory Subject : <span className="underline font-black text-blue-900">✓ General English</span>
               </p>
 
               {/* A: Science Stream */}
               <div className="mt-2">
-                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1">
-                  A: Science Stream Subjects (Choose Minimum Three)
+                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1 flex items-center justify-between">
+                  <span>A: Science Stream Subjects</span>
+                  {isScienceStream && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">✓ Stream Selected</span>}
                 </p>
                 <div className="grid grid-cols-4 border-2 border-slate-900 text-xs font-bold text-center divide-x-2 divide-slate-900 bg-slate-50">
-                  <div className="p-1">Physics</div>
-                  <div className="p-1">Chemistry</div>
-                  <div className="p-1">Biology</div>
-                  <div className="p-1">Mathematics</div>
+                  {['Physics', 'Chemistry', 'Biology', 'Mathematics'].map((sub) => {
+                    const sel = isSubjectSelected(sub) || (isScienceStream && sub !== 'Mathematics');
+                    return (
+                      <div key={sub} className={`p-1.5 flex items-center justify-center gap-1 ${sel ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
+                        {sel ? <span className="text-emerald-400">✓</span> : <span className="text-slate-400">○</span>}
+                        <span>{sub}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* B: Humanities Stream */}
               <div className="mt-2">
-                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1">
-                  B: Humanities: (Choose Minimum Any Three)
+                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1 flex items-center justify-between">
+                  <span>B: Humanities / Arts Stream Subjects</span>
+                  {isHumanitiesStream && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">✓ Stream Selected</span>}
                 </p>
                 <div className="grid grid-cols-6 border-2 border-slate-900 text-[11px] font-bold text-center divide-x-2 divide-slate-900 bg-slate-50">
-                  <div className="p-1">Education</div>
-                  <div className="p-1">Economics</div>
-                  <div className="p-1">Political Science</div>
-                  <div className="p-1">History</div>
-                  <div className="p-1">Urdu</div>
-                  <div className="p-1">Mathematics</div>
+                  {['Education', 'Economics', 'Political Science', 'History', 'Urdu', 'Mathematics'].map((sub) => {
+                    const sel = isSubjectSelected(sub);
+                    return (
+                      <div key={sub} className={`p-1 flex items-center justify-center gap-0.5 ${sel ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
+                        {sel ? <span className="text-emerald-400">✓</span> : <span className="text-slate-400">○</span>}
+                        <span>{sub}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* C: Separate Vocational / Skill Subject Panel */}
+              {/* C: Vocational / Skill Trade Selection Panel */}
               <div className="mt-2">
-                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1">
-                  C: Vocational / Skill Trade Selection Panel (Separate 5th Subject):
+                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1 flex items-center justify-between">
+                  <span>C: Vocational / Skill Trade Selection Panel:</span>
+                  {isVocationalStream && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">✓ Trade Selected</span>}
                 </p>
                 <div className="grid grid-cols-2 border-2 border-slate-900 text-xs font-bold text-center divide-x-2 divide-slate-900 bg-slate-50">
-                  <div className="p-1.5">IT & ITES</div>
-                  <div className="p-1.5">TOURISM AND HOSPITALITY</div>
+                  {['IT & ITES', 'TOURISM AND HOSPITALITY'].map((sub) => {
+                    const sel = isSubjectSelected(sub);
+                    return (
+                      <div key={sub} className={`p-1.5 flex items-center justify-center gap-1 ${sel ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
+                        {sel ? <span className="text-emerald-400">✓</span> : <span className="text-slate-400">○</span>}
+                        <span>{sub}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Selected Subjects Summary */}
-              <div className="mt-2 bg-slate-100 p-2 rounded border border-slate-300">
-                <span className="font-bold text-xs uppercase text-slate-700">Selected Major & Elective Subjects:</span>
-                <p className="text-xs font-bold font-mono text-slate-900 mt-0.5">
-                  {candidate.majorSubjects}
+              <div className="mt-2 bg-slate-100 p-2.5 rounded border border-slate-400">
+                <span className="font-bold text-xs uppercase text-slate-900">Submitted Major & Elective Subjects:</span>
+                <p className="text-xs font-bold font-mono text-blue-900 mt-0.5">
+                  {candidate.majorSubjects || '—'}
                 </p>
               </div>
             </div>
@@ -358,14 +403,14 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
                 </thead>
                 <tbody>
                   <tr className="font-semibold">
-                    <td className="border-r-2 border-slate-900 p-2">{candidate.previousQualification || '10th Passed'}</td>
-                    <td className="border-r-2 border-slate-900 p-2">{candidate.passingYear || '2025'}</td>
-                    <td className="border-r-2 border-slate-900 p-2 font-mono">{candidate.prevRollNumber || '20251001'}</td>
+                    <td className="border-r-2 border-slate-900 p-2">{candidate.previousQualification || 'Matriculation'}</td>
+                    <td className="border-r-2 border-slate-900 p-2">{candidate.passingYear || '—'}</td>
+                    <td className="border-r-2 border-slate-900 p-2 font-mono">{candidate.prevRollNumber || '—'}</td>
                     <td className="border-r-2 border-slate-900 p-2 font-bold">
-                      {candidate.marksObtained} / {candidate.totalMarks} ({candidate.percentage || gradeCalc.percentageFormatted}%)
+                      {candidate.marksObtained ? `${candidate.marksObtained} / ${candidate.totalMarks || 500} (${candidate.percentage || gradeCalc.percentageFormatted}%)` : '—'}
                     </td>
                     <td className="border-r-2 border-slate-900 p-2 text-emerald-800 font-black">
-                      Grade {candidate.grade || gradeCalc.grade} ({candidate.division || gradeCalc.division})
+                      {candidate.marksObtained ? `Grade ${candidate.grade || gradeCalc.grade} (${candidate.division || gradeCalc.division})` : '—'}
                     </td>
                     <td className="p-2">{candidate.boardUniversity || 'JKBOSE'}</td>
                   </tr>
@@ -443,3 +488,4 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
     </div>
   );
 };
+
