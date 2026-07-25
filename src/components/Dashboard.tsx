@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Candidate, ActiveTab } from '../types';
+import { downloadExcelDatabase } from '../utils/exportExcel';
 import { 
   UserPlus, 
   FileCheck, 
@@ -95,14 +96,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </button>
             )}
 
-            <a
-              href="/api/export-excel"
-              download="Candidates_Admission_Database.xlsx"
+            <button
+              onClick={() => downloadExcelDatabase(candidates)}
               className="px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm transition shadow-lg flex items-center gap-2 border border-emerald-600 cursor-pointer"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-200" />
               Export Excel DB
-            </a>
+            </button>
           </div>
         </div>
       </div>

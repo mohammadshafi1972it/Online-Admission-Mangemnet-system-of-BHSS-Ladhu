@@ -114,6 +114,28 @@
     break-inside: avoid !important;
   }
 
+  /* Discharge Certificate Single Page A4 Fit */
+  .printable-discharge-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .discharge-outer-frame {
+    padding: 4px !important;
+    margin: 0 !important;
+  }
+
+  .discharge-inner-frame {
+    padding: 12px 16px !important;
+    margin: 0 !important;
+  }
+
   .library-pass-card {
     border: 2.5px solid #065f46 !important;
     border-radius: 10px !important;

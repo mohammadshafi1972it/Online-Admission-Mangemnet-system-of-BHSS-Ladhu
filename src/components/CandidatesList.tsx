@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Candidate } from '../types';
 import { calculateGradeAndPercentage } from '../utils/grade';
 import { updateCandidateRecord, deleteCandidateRecord, clearAllCandidateRecords } from '../utils/api';
+import { downloadExcelDatabase } from '../utils/exportExcel';
+import { EditCandidateModal } from './EditCandidateModal';
 import { 
   FileSpreadsheet, 
   Search, 
@@ -18,7 +20,9 @@ import {
   Sparkles,
   RefreshCw,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  Edit,
+  UserCheck
 } from 'lucide-react';
 
 interface CandidatesListProps {
@@ -38,6 +42,7 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
   const [courseFilter, setCourseFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
 
   // Unique list of courses for filtering dropdown
   const courses = Array.from(new Set(candidates.map((c) => c.courseApplied)));
@@ -144,14 +149,13 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
             Reload DB
           </button>
 
-          <a
-            href="/api/export-excel"
-            download="Candidates_Admission_Database.xlsx"
+          <button
+            onClick={() => downloadExcelDatabase(candidates)}
             className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow flex items-center gap-2 cursor-pointer"
           >
             <Download className="w-4 h-4" />
             Export Excel
-          </a>
+          </button>
 
           <button
             onClick={() => setShowClearModal(true)}
@@ -327,9 +331,18 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
                       </button>
                     </td>
 
-                    {/* Quick Document Generator Buttons */}
+                    {/* Quick Document Generator Buttons & Edit */}
                     <td className="py-3.5 px-4 text-center">
                       <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => setEditingCandidate(candidate)}
+                          className="px-2 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-[11px] shadow-sm flex items-center gap-1 transition border border-emerald-600 cursor-pointer"
+                          title="View & Modify Submitted Student Data for In-charge Verification"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          View/Edit
+                        </button>
+
                         <button
                           onClick={() => onOpenQR(candidate)}
                           className="p-1.5 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition border border-teal-200"
@@ -441,6 +454,14 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
           </div>
         </div>
       )}
+
+      {/* EDIT CANDIDATE MODAL FOR INCHARGE VERIFICATION */}
+      <EditCandidateModal
+        candidate={editingCandidate}
+        isOpen={!!editingCandidate}
+        onClose={() => setEditingCandidate(null)}
+        onSaved={() => onRefresh()}
+      />
     </div>
   );
 };

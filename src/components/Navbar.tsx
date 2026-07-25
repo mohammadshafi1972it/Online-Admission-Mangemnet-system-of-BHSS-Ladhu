@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ActiveTab, UserRole } from '../types';
+import { downloadExcelDatabase } from '../utils/exportExcel';
 import { InchargeLoginModal } from './InchargeLoginModal';
 import { 
   GraduationCap, 
@@ -98,15 +99,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </button>
 
                 {/* Export Excel DB */}
-                <a
-                  href="/api/export-excel"
-                  download="Candidates_Admission_Database.xlsx"
-                  className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white transition shadow-sm border border-emerald-600"
+                <button
+                  onClick={() => downloadExcelDatabase()}
+                  className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white transition shadow-sm border border-emerald-600 cursor-pointer"
                   title="Download live Excel spreadsheet from backend server"
                 >
                   <FileSpreadsheet className="w-4 h-4 text-emerald-200" />
                   Export Excel DB
-                </a>
+                </button>
 
                 {/* Change Security PIN */}
                 <button

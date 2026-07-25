@@ -306,11 +306,11 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
         
         {/* DOCUMENT 1A: DISCHARGE CERTIFICATE - GOVT BOYS HSS LADHU FORMAT */}
         {docType === 'discharge' && dcFormat === 'ladhu' && (
-          <div className="w-full max-w-4xl bg-white p-4 sm:p-8 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-2 print:max-w-none">
+          <div className="printable-discharge-page w-full max-w-4xl bg-white p-4 sm:p-6 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none">
             {/* Outer Green Border Frame */}
-            <div className="border-2 border-emerald-900 p-2 sm:p-3 relative bg-white">
+            <div className="discharge-outer-frame border-2 border-emerald-900 p-2 sm:p-2.5 relative bg-white">
               {/* Inner Green Border Line */}
-              <div className="border border-emerald-900 p-6 sm:p-8 relative space-y-5">
+              <div className="discharge-inner-frame border border-emerald-900 p-4 sm:p-6 relative space-y-3 print:space-y-2.5">
 
                 {/* Watermark in background */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-5 overflow-hidden">
@@ -320,27 +320,27 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                 </div>
 
                 {/* Header Emblem & Title */}
-                <div className="text-center space-y-1 relative z-10">
-                  <div className="w-14 h-14 rounded-full border-2 border-emerald-900 mx-auto flex items-center justify-center p-1 bg-emerald-50/50">
+                <div className="text-center space-y-0.5 relative z-10">
+                  <div className="w-12 h-12 rounded-full border-2 border-emerald-900 mx-auto flex items-center justify-center p-0.5 bg-emerald-50/50">
                     <div className="w-full h-full rounded-full border border-emerald-900 flex items-center justify-center">
-                      <span className="text-emerald-900 font-bold text-xs font-serif">GBHSS</span>
+                      <span className="text-emerald-900 font-bold text-[10px] font-serif">GBHSS</span>
                     </div>
                   </div>
 
-                  <p className="text-[11px] font-serif tracking-[0.25em] text-slate-700 font-bold uppercase mt-2">
+                  <p className="text-[10px] sm:text-[11px] font-serif tracking-[0.25em] text-slate-700 font-bold uppercase mt-1">
                     OFFICE OF THE PRINCIPAL
                   </p>
-                  <h1 className="text-2xl sm:text-3xl font-black uppercase text-emerald-950 font-serif tracking-tight">
+                  <h1 className="text-xl sm:text-2xl font-black uppercase text-emerald-950 font-serif tracking-tight">
                     GOVT. BOYS HIGHER SECONDARY SCHOOL
                   </h1>
-                  <p className="text-xs sm:text-sm font-serif font-semibold text-emerald-900 tracking-wider">
+                  <p className="text-xs font-serif font-semibold text-emerald-900 tracking-wider">
                     LADHU PAMPORE, PULWAMA, KASHMIR
                   </p>
 
                   {/* Red Framed Title Box */}
-                  <div className="pt-2">
-                    <div className="inline-block border border-amber-800/70 bg-amber-50/30 px-8 py-1.5 rounded-md shadow-sm">
-                      <span className="text-red-900 font-serif font-extrabold text-base sm:text-lg tracking-widest uppercase">
+                  <div className="pt-1">
+                    <div className="inline-block border border-amber-800/70 bg-amber-50/30 px-6 py-1 rounded-md shadow-sm">
+                      <span className="text-red-900 font-serif font-extrabold text-sm sm:text-base tracking-widest uppercase">
                         DISCHARGE CERTIFICATE
                       </span>
                     </div>
@@ -348,7 +348,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                 </div>
 
                 {/* C. No. & Reg No., Admission No. & Date */}
-                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-xs sm:text-sm font-serif pt-2 relative z-10">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs font-serif pt-1 relative z-10">
                   <div className="flex items-baseline">
                     <span className="font-bold text-slate-800 shrink-0">C. No.</span>
                     <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-2 text-slate-900">{activeCandidate.id}</span>
@@ -368,32 +368,32 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                 </div>
 
                 {/* Personal Details Boxes + Photograph Frame */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-2 relative z-10">
-                  <div className="md:col-span-9 space-y-3 text-xs sm:text-sm">
-                    <div className="flex items-center gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1 relative z-10">
+                  <div className="md:col-span-9 space-y-2 text-xs">
+                    <div className="flex items-center gap-2">
                       <span className="w-28 font-semibold text-slate-800 shrink-0">Name</span>
-                      <div className="flex-1 border border-stone-300 rounded-md p-2 bg-stone-50/50 font-bold text-slate-900">
+                      <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900">
                         {activeCandidate.fullName}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span className="w-28 font-semibold text-slate-800 shrink-0">Father's Name</span>
-                      <div className="flex-1 border border-stone-300 rounded-md p-2 bg-stone-50/50 font-bold text-slate-900">
+                      <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900">
                         {activeCandidate.fatherName}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span className="w-28 font-semibold text-slate-800 shrink-0">Mother's Name</span>
-                      <div className="flex-1 border border-stone-300 rounded-md p-2 bg-stone-50/50 font-bold text-slate-900">
+                      <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900">
                         {activeCandidate.motherName || 'N/A'}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span className="w-28 font-semibold text-slate-800 shrink-0">D.O.B. (figures)</span>
-                      <div className="flex-1 border border-stone-300 rounded-md p-2 bg-stone-50/50 font-bold text-slate-900 font-mono">
+                      <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900 font-mono">
                         {activeCandidate.dob || '2005-06-14'}
                       </div>
                     </div>
@@ -401,18 +401,18 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
                   {/* Photograph Box */}
                   <div className="md:col-span-3 flex justify-center md:justify-end items-center">
-                    <div className="w-32 h-40 border border-slate-400 rounded-sm bg-slate-50 flex flex-col items-center justify-center p-2 text-center shadow-sm">
+                    <div className="w-28 h-32 border border-slate-400 rounded-sm bg-slate-50 flex flex-col items-center justify-center p-1.5 text-center shadow-sm">
                       {activeCandidate.photoUrl ? (
                         <img src={activeCandidate.photoUrl} alt="Photograph" className="w-full h-full object-cover rounded-sm" />
                       ) : (
-                        <span className="text-xs font-serif font-bold text-slate-400 tracking-wider">PHOTOGRAPH</span>
+                        <span className="text-[10px] font-serif font-bold text-slate-400 tracking-wider">PASTE PHOTO</span>
                       )}
                     </div>
                   </div>
                 </div>
 
                 {/* Certificate Text & Statements */}
-                <div className="space-y-3 text-xs sm:text-sm leading-relaxed text-slate-900 pt-2 relative z-10 font-serif">
+                <div className="space-y-2 text-xs leading-relaxed text-slate-900 pt-1 relative z-10 font-serif">
                   <p className="flex flex-wrap items-baseline gap-1">
                     <span>The above mentioned candidate was reading in Class</span>
                     <span className="border-b border-stone-400 font-bold px-2 font-sans">{activeCandidate.courseApplied || '12th'}</span>
@@ -451,7 +451,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
                   <p className="flex items-baseline gap-2">
                     <span className="shrink-0">Character of Candidate:</span>
-                    <strong className="font-bold text-slate-900 text-sm">{activeCandidate.conductRating || 'Very Good'}</strong>
+                    <strong className="font-bold text-slate-900 text-xs">{activeCandidate.conductRating || 'Very Good'}</strong>
                   </p>
 
                   <p className="flex items-baseline gap-2">
@@ -461,25 +461,25 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                 </div>
 
                 {/* Marks Summary Box */}
-                <div className="border border-emerald-900 rounded-md p-4 bg-emerald-50/20 relative z-10 mt-4">
-                  <div className="grid grid-cols-3 gap-4 text-center font-serif text-xs sm:text-sm">
+                <div className="border border-emerald-900 rounded-md p-2.5 bg-emerald-50/20 relative z-10 mt-2">
+                  <div className="grid grid-cols-3 gap-2 text-center font-serif text-xs">
                     {(() => {
                       const docGrade = calculateGradeAndPercentage(activeCandidate.marksObtained || 450, activeCandidate.totalMarks || 500);
                       return (
                         <>
                           <div>
-                            <span className="text-[10px] sm:text-xs font-bold text-emerald-950 uppercase tracking-wider block mb-1">MARKS OBTAINED</span>
-                            <span className="font-bold text-emerald-950 text-base sm:text-lg font-mono">{activeCandidate.marksObtained || 450} / {activeCandidate.totalMarks || 500}</span>
+                            <span className="text-[10px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">MARKS OBTAINED</span>
+                            <span className="font-bold text-emerald-950 text-sm font-mono">{activeCandidate.marksObtained || 450} / {activeCandidate.totalMarks || 500}</span>
                           </div>
 
                           <div className="border-x border-emerald-900/30 px-2">
-                            <span className="text-[10px] sm:text-xs font-bold text-emerald-950 uppercase tracking-wider block mb-1">AUTOCALCULATED GRADE</span>
-                            <span className="font-bold text-slate-900 text-base sm:text-lg font-mono">{activeCandidate.grade || docGrade.grade}</span>
+                            <span className="text-[10px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">AUTOCALCULATED GRADE</span>
+                            <span className="font-bold text-slate-900 text-sm font-mono">{activeCandidate.grade || docGrade.grade}</span>
                           </div>
 
                           <div>
-                            <span className="text-[10px] sm:text-xs font-bold text-emerald-950 uppercase tracking-wider block mb-1">% OF MARKS</span>
-                            <span className="font-bold text-slate-900 text-base sm:text-lg font-mono">
+                            <span className="text-[10px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">% OF MARKS</span>
+                            <span className="font-bold text-slate-900 text-sm font-mono">
                               {activeCandidate.percentage || docGrade.percentageFormatted}%
                             </span>
                           </div>
@@ -490,25 +490,25 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                 </div>
 
                 {/* Bottom Signatures & Seal */}
-                <div className="pt-12 grid grid-cols-4 gap-2 text-center text-xs font-serif font-bold text-slate-800 relative z-10">
-                  <div className="space-y-8">
-                    <div className="border-b border-stone-500 w-24 sm:w-28 mx-auto"></div>
+                <div className="pt-6 sm:pt-8 grid grid-cols-4 gap-2 text-center text-xs font-serif font-bold text-slate-800 relative z-10">
+                  <div className="space-y-4">
+                    <div className="border-b border-stone-500 w-20 sm:w-24 mx-auto"></div>
                     <span>I/C</span>
                   </div>
 
-                  <div className="space-y-8">
-                    <div className="border-b border-stone-500 w-24 sm:w-28 mx-auto"></div>
+                  <div className="space-y-4">
+                    <div className="border-b border-stone-500 w-20 sm:w-24 mx-auto"></div>
                     <span>CHECKED BY</span>
                   </div>
 
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-16 h-16 rounded-full border border-dashed border-stone-400 flex items-center justify-center p-1 text-[9px] font-sans text-stone-400 text-center uppercase tracking-tighter leading-tight">
+                    <div className="w-14 h-14 rounded-full border border-dashed border-stone-400 flex items-center justify-center p-1 text-[8px] font-sans text-stone-400 text-center uppercase tracking-tighter leading-tight">
                       OFFICE SEAL
                     </div>
                   </div>
 
-                  <div className="space-y-8">
-                    <div className="border-b border-stone-900 w-24 sm:w-32 mx-auto"></div>
+                  <div className="space-y-4">
+                    <div className="border-b border-stone-900 w-20 sm:w-28 mx-auto"></div>
                     <span className="font-black text-slate-900 uppercase">PRINCIPAL</span>
                   </div>
                 </div>
@@ -520,16 +520,16 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
         {/* DOCUMENT 1B: DISCHARGE CERTIFICATE (STANDARD SCHOOL FORMAT) */}
         {docType === 'discharge' && dcFormat === 'standard' && (
-          <div className="w-full max-w-3xl bg-white p-8 sm:p-12 shadow-2xl rounded-sm border-2 border-amber-900/20 text-slate-900 font-serif relative print:shadow-none print:p-6 print:max-w-none">
+          <div className="printable-discharge-page w-full max-w-3xl bg-white p-6 sm:p-8 shadow-2xl rounded-sm border-2 border-amber-900/20 text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none">
             {/* Ornamental Frame Border */}
-            <div className="border-4 border-double border-amber-900/40 p-6 sm:p-8 space-y-6 relative">
+            <div className="discharge-outer-frame border-4 border-double border-amber-900/40 p-4 sm:p-6 space-y-4 relative">
               
               {/* Header */}
-              <div className="text-center space-y-1.5 border-b-2 border-amber-900/30 pb-4">
+              <div className="text-center space-y-1 border-b-2 border-amber-900/30 pb-3">
                 <p className="text-xs font-sans font-bold text-amber-900 uppercase tracking-widest">Govt. Boys Higher Secondary School</p>
-                <h1 className="text-2xl sm:text-3xl font-black uppercase text-amber-950 font-serif">OFFICE OF THE PRINCIPAL</h1>
+                <h1 className="text-xl sm:text-2xl font-black uppercase text-amber-950 font-serif">OFFICE OF THE PRINCIPAL</h1>
                 <p className="text-xs font-sans text-slate-600">Ladhoo Pampore, Pulwama, J&K</p>
-                <div className="mt-2 inline-block bg-amber-900 text-white px-4 py-1 text-sm font-sans font-extrabold uppercase tracking-widest rounded-sm">
+                <div className="mt-1.5 inline-block bg-amber-900 text-white px-4 py-1 text-xs font-sans font-extrabold uppercase tracking-widest rounded-sm">
                   DISCHARGE / TRANSFER CERTIFICATE
                 </div>
               </div>
@@ -541,7 +541,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
               </div>
 
               {/* Body Text */}
-              <div className="text-sm sm:text-base leading-relaxed text-slate-800 space-y-4 font-serif text-justify pt-2">
+              <div className="text-xs sm:text-sm leading-relaxed text-slate-800 space-y-3 font-serif text-justify pt-1">
                 <p>
                   This is to certify that <span className="font-extrabold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fullName}</span>, 
                   Son/Daughter of Shri <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fatherName}</span> 
@@ -564,22 +564,22 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
               </div>
 
               {/* Signatures & Security QR Code */}
-              <div className="pt-10 flex items-end justify-between border-t border-slate-300 font-sans">
+              <div className="pt-6 flex items-end justify-between border-t border-slate-300 font-sans">
                 {qrUrl && (
                   <div className="text-center">
-                    <img src={qrUrl} alt="Security QR" className="w-24 h-24 border border-slate-300 p-1 mx-auto" />
+                    <img src={qrUrl} alt="Security QR" className="w-20 h-20 border border-slate-300 p-1 mx-auto" />
                     <p className="text-[9px] font-mono font-bold text-slate-600 mt-0.5">Scan to Verify Record</p>
                   </div>
                 )}
 
                 <div className="text-center space-y-1">
-                  <div className="h-10 border-b border-slate-400 w-36 mx-auto"></div>
+                  <div className="h-8 border-b border-slate-400 w-32 mx-auto"></div>
                   <p className="text-xs font-bold text-slate-900">Head Clerk / Academic Cell</p>
                 </div>
 
                 <div className="text-center space-y-1">
-                  <div className="h-10 border-b border-slate-800 w-44 mx-auto flex items-center justify-center">
-                    <span className="text-xs font-serif italic text-amber-900 font-bold opacity-80">[ Principal Seal & Signature ]</span>
+                  <div className="h-8 border-b border-slate-800 w-40 mx-auto flex items-center justify-center">
+                    <span className="text-[11px] font-serif italic text-amber-900 font-bold opacity-80">[ Principal Seal & Signature ]</span>
                   </div>
                   <p className="text-xs font-extrabold text-slate-900 uppercase">Principal</p>
                   <p className="text-[10px] text-slate-500">Govt. Boys HSS Ladhu, Pampore</p>
