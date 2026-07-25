@@ -116,35 +116,27 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
           ...formData,
           classWishToJoin: value,
           courseApplied: `Secondary (${value})`,
-          majorSubjects: 'English, Mathematics, Science, Social Science, Urdu, IT&ITES, Tourism & Hospitality',
+          majorSubjects: 'General English, Mathematics, Science, Social Science, Urdu, IT & ITES',
         });
       } else {
         setFormData({
           ...formData,
           classWishToJoin: value,
-          courseApplied: 'Science Stream (Medical: Physics, Chemistry, Biology)',
-          majorSubjects: 'Physics, Chemistry, Biology, General English',
+          courseApplied: 'Science Stream',
+          majorSubjects: 'General English, Physics, Chemistry, Biology',
         });
       }
       return;
     }
 
     if (name === 'courseApplied') {
-      let subjects = formData.majorSubjects;
-      if (value.includes('Science') || value.includes('Medical')) {
-        if (value.includes('Medical') && !value.includes('Non-Medical') && !value.includes('PCMB')) {
-          subjects = 'Physics, Chemistry, Biology, General English';
-        } else if (value.includes('Non-Medical')) {
-          subjects = 'Physics, Chemistry, Mathematics, General English';
-        } else if (value.includes('PCMB') || value.includes('All 4')) {
-          subjects = 'Physics, Chemistry, Biology, Mathematics, General English';
-        } else {
-          subjects = 'Physics, Chemistry, Biology, Mathematics, General English';
-        }
+      let subjects = 'General English';
+      if (value.includes('Science')) {
+        subjects = 'General English, Physics, Chemistry, Biology';
       } else if (value.includes('Humanities') || value.includes('Arts')) {
-        subjects = 'Education, Economics, History, Political Science, General English';
-      } else if (value.includes('Vocational') || value.includes('IT')) {
-        subjects = 'IT & ITES, Tourism & Hospitality, General English';
+        subjects = 'General English, Education, Economics, Political Science, History';
+      } else if (value.includes('Vocational')) {
+        subjects = 'General English, IT & ITES, Tourism & Hospitality';
       }
       setFormData({ ...formData, courseApplied: value, majorSubjects: subjects });
     } else {
@@ -1250,59 +1242,92 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
             ) : (
               /* Class 11th & 12th Higher Secondary Streams */
               <div className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                      13. Stream Opted <span className="text-rose-500">*</span>
-                    </label>
-                    <select
-                      name="courseApplied"
-                      value={formData.courseApplied}
-                      onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-sm font-bold text-slate-900 bg-white"
-                    >
-                      <option value="Science Stream (Medical: Physics, Chemistry, Biology)">Science Stream (Medical: Physics, Chemistry, Biology)</option>
-                      <option value="Science Stream (Non-Medical: Physics, Chemistry, Math)">Science Stream (Non-Medical: Physics, Chemistry, Math)</option>
-                      <option value="Science Stream (PCMB: Physics, Chem, Bio, Math)">Science Stream (PCMB: Physics, Chem, Bio, Math)</option>
-                      <option value="Humanities Stream (Education, Economics, History, Pol Sci, Urdu, Math)">Humanities Stream (Education, Economics, History, Pol Sci, Urdu, Math)</option>
-                      <option value="Vocational Stream (IT & ITES / Tourism & Hospitality)">Vocational Stream (IT & ITES / Tourism & Hospitality)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                      14. Compulsory Subject
-                    </label>
-                    <input
-                      type="text"
-                      value="General English (Compulsory for All Streams)"
-                      disabled
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-slate-100 font-bold text-sm text-blue-900"
-                    />
+                {/* Stream Opted Selection Cards */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+                    13. Select Stream Opted <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      {
+                        id: 'Science Stream',
+                        title: 'Science Stream',
+                        desc: 'Physics, Chemistry, Biology / Mathematics',
+                        badge: 'Medical / Non-Med / PCMB',
+                        color: 'blue',
+                      },
+                      {
+                        id: 'Humanities / Arts Stream',
+                        title: 'Humanities Stream',
+                        desc: 'Education, Economics, History, Pol. Sci, Urdu',
+                        badge: 'Arts & Humanities',
+                        color: 'amber',
+                      },
+                      {
+                        id: 'Vocational Stream',
+                        title: 'Vocational Stream',
+                        desc: 'IT & ITES / Tourism & Hospitality Skills',
+                        badge: 'NSQF Vocational Trade',
+                        color: 'purple',
+                      },
+                    ].map((stream) => {
+                      const isSelected = formData.courseApplied.includes(stream.id) || (stream.id.includes('Science') && formData.courseApplied.includes('Science'));
+                      return (
+                        <button
+                          key={stream.id}
+                          type="button"
+                          onClick={() => {
+                            let defaultSubj = 'General English';
+                            if (stream.id.includes('Science')) {
+                              defaultSubj = 'General English, Physics, Chemistry, Biology';
+                            } else if (stream.id.includes('Humanities')) {
+                              defaultSubj = 'General English, Education, Economics, Political Science, History';
+                            } else if (stream.id.includes('Vocational')) {
+                              defaultSubj = 'General English, IT & ITES, Tourism & Hospitality';
+                            }
+                            setFormData({
+                              ...formData,
+                              courseApplied: stream.id,
+                              majorSubjects: defaultSubj,
+                            });
+                          }}
+                          className={`p-4 rounded-xl text-left border-2 transition-all flex flex-col justify-between gap-2 shadow-sm ${
+                            isSelected
+                              ? 'border-blue-600 bg-blue-50/90 ring-2 ring-blue-200'
+                              : 'border-slate-200 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="font-extrabold text-sm text-slate-900">{stream.title}</span>
+                              {isSelected && <Check className="w-4 h-4 text-blue-600" />}
+                            </div>
+                            <p className="text-xs text-slate-600 mt-1">{stream.desc}</p>
+                          </div>
+                          <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 self-start">
+                            {stream.badge}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
-                      Selected Major & Elective Subjects
+                {/* Subject Selection Box for Opted Stream */}
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                    <label className="block text-xs font-bold text-slate-800 uppercase">
+                      14. Select Elective Subjects for {formData.courseApplied}
                     </label>
-                    <span className="text-[11px] text-blue-600 font-medium">Click tags below to toggle electives</span>
+                    <span className="text-[11px] text-blue-700 font-extrabold bg-blue-100 px-2.5 py-0.5 rounded-full border border-blue-200">
+                      Compulsory: General English
+                    </span>
                   </div>
-                  
-                  <input
-                    type="text"
-                    name="majorSubjects"
-                    value={formData.majorSubjects}
-                    onChange={handleChange}
-                    placeholder="e.g. Physics, Chemistry, Biology, Mathematics, IT & ITES, Tourism, General English"
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-sm font-bold mb-2"
-                  />
 
-                  {/* Science Stream Options */}
-                  {(formData.courseApplied.includes('Science') || formData.courseApplied.includes('Medical')) && (
-                    <div className="bg-blue-50/80 p-3.5 rounded-xl border border-blue-200/80 text-xs mb-3">
-                      <p className="font-bold text-blue-900 mb-2">A: Science Stream Core Electives (Choose Minimum 3):</p>
+                  {/* Elective Toggles for Science */}
+                  {formData.courseApplied.includes('Science') && (
+                    <div>
+                      <span className="text-xs font-bold text-slate-700 block mb-1.5">Science Electives:</span>
                       <div className="flex flex-wrap gap-2">
                         {['Physics', 'Chemistry', 'Biology', 'Mathematics'].map((subj) => {
                           const isSelected = formData.majorSubjects.includes(subj);
@@ -1311,15 +1336,12 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                               key={subj}
                               type="button"
                               onClick={() => {
-                                let currentList = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
-                                if (isSelected) {
-                                  currentList = currentList.filter(s => s !== subj);
-                                } else {
-                                  currentList.push(subj);
-                                }
-                                setFormData({ ...formData, majorSubjects: currentList.join(', ') });
+                                let list = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
+                                if (isSelected) list = list.filter(s => s !== subj);
+                                else list.push(subj);
+                                setFormData({ ...formData, majorSubjects: list.join(', ') });
                               }}
-                              className={`px-3 py-1.5 rounded-full font-bold text-xs border transition-colors ${
+                              className={`px-3.5 py-1.5 rounded-lg font-extrabold text-xs border transition ${
                                 isSelected
                                   ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
                                   : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
@@ -1333,10 +1355,10 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                     </div>
                   )}
 
-                  {/* Humanities Stream Options */}
+                  {/* Elective Toggles for Humanities */}
                   {(formData.courseApplied.includes('Humanities') || formData.courseApplied.includes('Arts')) && (
-                    <div className="bg-amber-50/80 p-3.5 rounded-xl border border-amber-200/80 text-xs mb-3">
-                      <p className="font-bold text-amber-900 mb-2">B: Humanities Stream Core Electives (Choose Minimum 3):</p>
+                    <div>
+                      <span className="text-xs font-bold text-slate-700 block mb-1.5">Humanities / Arts Electives:</span>
                       <div className="flex flex-wrap gap-2">
                         {['Education', 'Economics', 'Political Science', 'History', 'Urdu', 'Mathematics'].map((subj) => {
                           const isSelected = formData.majorSubjects.includes(subj);
@@ -1345,15 +1367,12 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                               key={subj}
                               type="button"
                               onClick={() => {
-                                let currentList = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
-                                if (isSelected) {
-                                  currentList = currentList.filter(s => s !== subj);
-                                } else {
-                                  currentList.push(subj);
-                                }
-                                setFormData({ ...formData, majorSubjects: currentList.join(', ') });
+                                let list = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
+                                if (isSelected) list = list.filter(s => s !== subj);
+                                else list.push(subj);
+                                setFormData({ ...formData, majorSubjects: list.join(', ') });
                               }}
-                              className={`px-3 py-1.5 rounded-full font-bold text-xs border transition-colors ${
+                              className={`px-3.5 py-1.5 rounded-lg font-extrabold text-xs border transition ${
                                 isSelected
                                   ? 'bg-amber-600 text-white border-amber-700 shadow-sm'
                                   : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
@@ -1367,47 +1386,47 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                     </div>
                   )}
 
-                  {/* SEPARATE VOCATIONAL SELECTION PANEL */}
-                  <div className="bg-purple-50/90 p-3.5 rounded-xl border border-purple-200/90 text-xs">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-extrabold text-purple-950 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-purple-600 inline-block"></span>
-                        C: Vocational / Skill Trade Selection Panel (Separate 5th Subject Choice):
-                      </p>
-                      <span className="text-[10px] bg-purple-200 text-purple-900 font-bold px-2 py-0.5 rounded-md">
-                        Separate Skill Trade Panel
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-purple-800 mb-2 font-medium">
-                      Vocational skill trades are maintained in this separate panel. Click to select your preferred skill trade:
-                    </p>
+                  {/* Vocational Skill Trade Toggle (Available for All Streams as 5th/Vocational choice) */}
+                  <div className="pt-2 border-t border-slate-200">
+                    <span className="text-xs font-bold text-purple-900 block mb-1.5">Vocational & NSQF Skill Trade Choice (Optional):</span>
                     <div className="flex flex-wrap gap-2">
-                      {['IT & ITES', 'Tourism & Hospitality'].map((subj) => {
-                        const isSelected = formData.majorSubjects.includes(subj);
+                      {['IT & ITES', 'Tourism & Hospitality'].map((voca) => {
+                        const isSelected = formData.majorSubjects.includes(voca);
                         return (
                           <button
-                            key={subj}
+                            key={voca}
                             type="button"
                             onClick={() => {
-                              let currentList = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
-                              if (isSelected) {
-                                currentList = currentList.filter(s => s !== subj);
-                              } else {
-                                currentList.push(subj);
-                              }
-                              setFormData({ ...formData, majorSubjects: currentList.join(', ') });
+                              let list = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
+                              if (isSelected) list = list.filter(s => s !== voca);
+                              else list.push(voca);
+                              setFormData({ ...formData, majorSubjects: list.join(', ') });
                             }}
-                            className={`px-3.5 py-2 rounded-xl font-extrabold text-xs border transition-all flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                            className={`px-3.5 py-1.5 rounded-lg font-extrabold text-xs border transition ${
                               isSelected
-                                ? 'bg-purple-700 text-white border-purple-800 ring-2 ring-purple-300'
-                                : 'bg-white text-purple-900 border-purple-300 hover:bg-purple-100'
+                                ? 'bg-purple-700 text-white border-purple-800 shadow-sm'
+                                : 'bg-white text-purple-900 border-purple-300 hover:bg-purple-50'
                             }`}
                           >
-                            {isSelected ? '✓ ' : '+ '}{subj}
+                            {isSelected ? '✓ ' : '+ '}{voca}
                           </button>
                         );
                       })}
                     </div>
+                  </div>
+
+                  {/* Live Subject Combination Display */}
+                  <div className="pt-2">
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                      Final Selected Subject Combination:
+                    </label>
+                    <input
+                      type="text"
+                      name="majorSubjects"
+                      value={formData.majorSubjects}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-xs font-mono font-bold bg-white text-slate-900"
+                    />
                   </div>
                 </div>
               </div>

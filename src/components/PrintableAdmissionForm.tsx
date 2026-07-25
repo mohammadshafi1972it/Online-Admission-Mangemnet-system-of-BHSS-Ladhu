@@ -39,10 +39,42 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
     return subjects.includes(target);
   };
 
-  const streamText = (candidate.streamOpted || candidate.courseApplied || '').toLowerCase();
-  const isScienceStream = streamText.includes('science') || streamText.includes('medical');
-  const isHumanitiesStream = streamText.includes('arts') || streamText.includes('humanities');
-  const isVocationalStream = streamText.includes('vocational') || streamText.includes('skill') || streamText.includes('it') || streamText.includes('tourism');
+  // Clean stream name helper
+  const rawStream = candidate.streamOpted || candidate.courseApplied || '';
+  let cleanStreamName = rawStream;
+  if (rawStream.toLowerCase().includes('science')) {
+    cleanStreamName = 'Science Stream';
+  } else if (rawStream.toLowerCase().includes('humanities') || rawStream.toLowerCase().includes('arts')) {
+    cleanStreamName = 'Humanities / Arts Stream';
+  } else if (rawStream.toLowerCase().includes('vocational') || rawStream.toLowerCase().includes('skill')) {
+    cleanStreamName = 'Vocational Stream';
+  } else if (isSecondary) {
+    cleanStreamName = `Secondary (${candidate.classWishToJoin || '9th/10th'})`;
+  }
+
+  // Helper to extract clean list of selected subjects without duplicate stream names
+  const getSelectedSubjectsList = (): string[] => {
+    if (!candidate.majorSubjects) return ['General English'];
+    const parts = candidate.majorSubjects
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+      .filter((s) => !s.toLowerCase().includes('stream') && !s.toLowerCase().includes('medical'));
+
+    // Deduplicate case-insensitively
+    const unique: string[] = [];
+    const seen = new Set<string>();
+    for (const item of parts) {
+      const lower = item.toLowerCase();
+      if (!seen.has(lower)) {
+        seen.add(lower);
+        unique.push(item);
+      }
+    }
+    return unique.length > 0 ? unique : ['General English'];
+  };
+
+  const selectedSubjectsList = getSelectedSubjectsList();
 
   return (
     <div id="printable-admission-form" className="bg-white text-slate-900 font-sans p-6 sm:p-10 max-w-4xl mx-auto shadow-2xl border border-slate-300 print:shadow-none print:border-none print:p-0">
@@ -283,109 +315,57 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
           </div>
         </div>
 
-        {/* 12. Subjects for Secondary (For 9th and 10th Class Students) */}
-        <div className="mt-4 pt-2">
-          <p className="font-bold text-xs uppercase mb-2 text-slate-900 flex items-center justify-between">
-            <span>12 Subjects for Secondary (For 9th and 10th Class Students):</span>
-            {isSecondary && <span className="text-[10px] text-blue-800 bg-blue-100 px-2 py-0.5 rounded font-bold">✓ Active Secondary Level</span>}
-          </p>
-          <div className="grid grid-cols-7 border-2 border-slate-900 text-[10px] text-center font-bold uppercase divide-x-2 divide-slate-900 bg-slate-50">
-            {['ENGLISH', 'MATHEMATICS', 'SCIENCE', 'SOCIAL SCIENCE', 'URDU', 'IT&ITES', 'Tourism & Hospitality'].map((sub) => {
-              const selected = isSecondary || isSubjectSelected(sub);
-              return (
-                <div key={sub} className={`p-1.5 flex flex-col items-center justify-center ${selected ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
-                  {selected && <span className="text-[9px] text-emerald-400">✓</span>}
+        {/* Stream & Selected Subject Combination (Printed ONLY for selected choices - No Duplication) */}
+        {isSecondary ? (
+          <div className="mt-4 border-2 border-slate-900 p-3 bg-white space-y-2">
+            <div className="flex items-center justify-between border-b-2 border-slate-900 pb-2">
+              <span className="font-extrabold text-xs uppercase text-slate-900">Academic Level & Stream:</span>
+              <span className="font-black text-xs uppercase tracking-wider text-blue-900 px-3 py-0.5 bg-slate-100 border border-slate-900">
+                {cleanStreamName}
+              </span>
+            </div>
+            <p className="font-extrabold text-xs uppercase text-slate-900 mt-2">12. Selected Secondary Subject Combination:</p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {selectedSubjectsList.map((sub, idx) => (
+                <div key={idx} className="border-2 border-slate-900 px-3 py-1 font-extrabold text-xs bg-slate-50 text-slate-900 flex items-center gap-1.5 shadow-sm">
+                  <span className="text-emerald-700 font-bold">✓</span>
                   <span>{sub}</span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="mt-4 border-2 border-slate-900 p-3 bg-white space-y-2">
+            <div className="flex items-center justify-between border-b-2 border-slate-900 pb-2">
+              <span className="font-extrabold text-xs uppercase text-slate-900">13. Stream Opted:</span>
+              <span className="font-black text-sm uppercase tracking-wider text-blue-900 px-4 py-1 bg-slate-100 border-2 border-slate-900">
+                {cleanStreamName}
+              </span>
+            </div>
+
+            <div className="pt-2">
+              <p className="font-extrabold text-xs uppercase text-slate-900 mb-2">14. Selected Subject Combination (Only Opted Subjects):</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border-2 border-slate-900 p-3 bg-slate-50">
+                <div className="col-span-2 sm:col-span-3 pb-1 border-b border-slate-300 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-700 uppercase">Compulsory Subject:</span>
+                  <span className="text-xs font-black text-blue-900 bg-blue-50 border border-blue-300 px-2 py-0.5 rounded">✓ General English</span>
+                </div>
+                {selectedSubjectsList.map((sub, idx) => (
+                  <div key={idx} className="p-2 bg-white border-2 border-slate-900 rounded font-black text-xs text-slate-900 flex items-center gap-2 shadow-sm">
+                    <span className="text-emerald-600 font-bold text-sm">✓</span>
+                    <span>{sub}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* FORM CONTAINER - PAGE 2 */}
       <div className="my-6 print:my-0 border-t-2 border-dashed border-slate-400 print:border-none print:break-before-page pt-4 print:pt-0">
         <div className="border-2 border-slate-800 p-6 relative bg-white">
-          {/* Section 13 & 14 Higher Secondary Stream & Combination */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between border-2 border-slate-900 p-2 bg-slate-100">
-              <span className="font-extrabold text-sm uppercase">13 Stream Opted:</span>
-              <span className="font-black text-base uppercase tracking-wider text-blue-900 px-3 py-0.5 bg-white border border-slate-400">
-                {candidate.streamOpted || candidate.courseApplied || '—'}
-              </span>
-            </div>
-
-            <div className="border-2 border-slate-900 p-3 bg-white space-y-2">
-              <p className="font-extrabold text-xs uppercase">14 Subject Combination Chosen (Selected items checked below):</p>
-              <p className="text-xs font-bold text-slate-800">
-                Compulsory Subject : <span className="underline font-black text-blue-900">✓ General English</span>
-              </p>
-
-              {/* A: Science Stream */}
-              <div className="mt-2">
-                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1 flex items-center justify-between">
-                  <span>A: Science Stream Subjects</span>
-                  {isScienceStream && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">✓ Stream Selected</span>}
-                </p>
-                <div className="grid grid-cols-4 border-2 border-slate-900 text-xs font-bold text-center divide-x-2 divide-slate-900 bg-slate-50">
-                  {['Physics', 'Chemistry', 'Biology', 'Mathematics'].map((sub) => {
-                    const sel = isSubjectSelected(sub) || (isScienceStream && sub !== 'Mathematics');
-                    return (
-                      <div key={sub} className={`p-1.5 flex items-center justify-center gap-1 ${sel ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
-                        {sel ? <span className="text-emerald-400">✓</span> : <span className="text-slate-400">○</span>}
-                        <span>{sub}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* B: Humanities Stream */}
-              <div className="mt-2">
-                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1 flex items-center justify-between">
-                  <span>B: Humanities / Arts Stream Subjects</span>
-                  {isHumanitiesStream && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">✓ Stream Selected</span>}
-                </p>
-                <div className="grid grid-cols-6 border-2 border-slate-900 text-[11px] font-bold text-center divide-x-2 divide-slate-900 bg-slate-50">
-                  {['Education', 'Economics', 'Political Science', 'History', 'Urdu', 'Mathematics'].map((sub) => {
-                    const sel = isSubjectSelected(sub);
-                    return (
-                      <div key={sub} className={`p-1 flex items-center justify-center gap-0.5 ${sel ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
-                        {sel ? <span className="text-emerald-400">✓</span> : <span className="text-slate-400">○</span>}
-                        <span>{sub}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* C: Vocational / Skill Trade Selection Panel */}
-              <div className="mt-2">
-                <p className="font-bold text-[11px] uppercase text-slate-700 mb-1 flex items-center justify-between">
-                  <span>C: Vocational / Skill Trade Selection Panel:</span>
-                  {isVocationalStream && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">✓ Trade Selected</span>}
-                </p>
-                <div className="grid grid-cols-2 border-2 border-slate-900 text-xs font-bold text-center divide-x-2 divide-slate-900 bg-slate-50">
-                  {['IT & ITES', 'TOURISM AND HOSPITALITY'].map((sub) => {
-                    const sel = isSubjectSelected(sub);
-                    return (
-                      <div key={sub} className={`p-1.5 flex items-center justify-center gap-1 ${sel ? 'bg-slate-900 text-white font-extrabold' : 'text-slate-700'}`}>
-                        {sel ? <span className="text-emerald-400">✓</span> : <span className="text-slate-400">○</span>}
-                        <span>{sub}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Selected Subjects Summary */}
-              <div className="mt-2 bg-slate-100 p-2.5 rounded border border-slate-400">
-                <span className="font-bold text-xs uppercase text-slate-900">Submitted Major & Elective Subjects:</span>
-                <p className="text-xs font-bold font-mono text-blue-900 mt-0.5">
-                  {candidate.majorSubjects || '—'}
-                </p>
-              </div>
-            </div>
 
             {/* 15 Previous Academic Record Table */}
             <div className="mt-4">
