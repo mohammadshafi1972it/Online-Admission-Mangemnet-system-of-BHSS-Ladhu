@@ -340,25 +340,42 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
         )}
 
         <div className={`bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden ${activePreviewDoc ? 'print:hidden' : ''}`}>
+          {/* Top Success Alert Toast Banner */}
+          <div className="bg-emerald-900 text-emerald-100 px-6 py-3.5 border-b border-emerald-800 flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold">
+            <div className="flex items-center gap-2">
+              <span className="flex h-3 w-3 relative shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <span>🎉 <strong>Form Submitted Successfully!</strong> Your record has been saved into the official school database.</span>
+            </div>
+            <span className="font-mono text-xs bg-emerald-800 text-emerald-200 px-2.5 py-1 rounded font-bold shrink-0">
+              ID: {submittedCandidate.id}
+            </span>
+          </div>
+
           {/* Header Banner */}
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-gradient-to-r from-emerald-600 via-teal-700 to-slate-900 text-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+                <CheckCircle2 className="w-10 h-10 text-emerald-300" />
               </div>
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-100 bg-emerald-800/40 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-black uppercase tracking-widest text-emerald-200 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
                   BOYS HIGHER SECONDARY SCHOOL LADHOO PAMPORE
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold mt-1">Admission Application Success!</h2>
-                <p className="text-emerald-100 text-sm mt-0.5">Application ID: <span className="font-mono font-bold text-white bg-emerald-900/50 px-2 py-0.5 rounded">{submittedCandidate.id}</span></p>
+                <h2 className="text-2xl sm:text-3xl font-extrabold mt-1.5 text-white tracking-tight">Admission Form Submitted Successfully!</h2>
+                <p className="text-emerald-100 text-sm mt-1 flex flex-wrap items-center gap-2">
+                  <span>Application Reference ID:</span>
+                  <span className="font-mono font-bold text-white bg-emerald-900/80 border border-emerald-400/40 px-2.5 py-0.5 rounded text-sm">{submittedCandidate.id}</span>
+                </p>
               </div>
             </div>
 
             {qrCodeUrl && (
-              <div className="bg-white p-2 rounded-xl shadow-lg text-center flex flex-col items-center shrink-0">
-                <img src={qrCodeUrl} alt="Application QR Code" className="w-28 h-28 object-contain" />
-                <span className="text-[10px] font-mono text-slate-600 mt-1">Scan to Verify</span>
+              <div className="bg-white p-2.5 rounded-2xl shadow-xl text-center flex flex-col items-center shrink-0 border border-emerald-100">
+                <img src={qrCodeUrl} alt="Application QR Code" className="w-28 h-28 object-contain rounded-lg" />
+                <span className="text-[10px] font-mono text-slate-600 font-bold mt-1">Scan to Verify Record</span>
               </div>
             )}
           </div>
