@@ -238,22 +238,55 @@ export async function updateCandidateRecord(id: string, updates: Partial<Candida
 }
 
 export async function deleteCandidateRecord(id: string): Promise<boolean> {
-  const res = await fetch(`/api/candidates/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok) {
-    throw new Error('Failed to delete candidate record');
+  const cleanId = (id || '').trim();
+  if (!cleanId) return true;
+
+  try {
+    const res = await fetch(`/api/candidates/${encodeURIComponent(cleanId)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      console.warn('API returned non-OK status during candidate delete, syncing local state:', res.status);
+    }
+  } catch (err) {
+    console.warn('API delete request failed, syncing local state:', err);
   }
+
+  // Always sync and delete from local fallback storage
+  const localRaw = localStorage.getItem('candidates_fallback_db');
+  if (localRaw) {
+    try {
+      const list: Candidate[] = JSON.parse(localRaw);
+      const target = cleanId.toLowerCase();
+      const filtered = list.filter((c) => {
+        const cid = (c.id || '').trim().toLowerCase();
+        const cRoll = (c.assignedRollNumber || '').trim().toLowerCase();
+        const cEnr = (c.enrolmentNumber || '').trim().toLowerCase();
+        const cAdm = (c.admNo || '').trim().toLowerCase();
+        return cid !== target && cRoll !== target && cEnr !== target && cAdm !== target;
+      });
+      localStorage.setItem('candidates_fallback_db', JSON.stringify(filtered));
+    } catch (e) {
+      console.error('Error cleaning up local storage fallback on delete:', e);
+    }
+  }
+
   return true;
 }
 
 export async function clearAllCandidateRecords(): Promise<boolean> {
-  const res = await fetch('/api/candidates', {
-    method: 'DELETE',
-  });
-  if (!res.ok) {
-    throw new Error('Failed to clear all candidate records');
+  try {
+    const res = await fetch('/api/candidates', {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      console.warn('API clear candidates returned non-OK status:', res.status);
+    }
+  } catch (err) {
+    console.warn('API clear candidates request failed:', err);
   }
+
+  localStorage.setItem('candidates_fallback_db', JSON.stringify([]));
   return true;
 }
 

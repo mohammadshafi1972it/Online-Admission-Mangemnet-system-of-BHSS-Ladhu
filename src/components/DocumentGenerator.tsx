@@ -309,42 +309,42 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
         
         {/* DOCUMENT 1A: DISCHARGE CERTIFICATE - GOVT BOYS HSS LADHU FORMAT */}
         {docType === 'discharge' && dcFormat === 'ladhu' && (
-          <div className="printable-discharge-page w-full max-w-[210mm] min-h-[297mm] mx-auto bg-white p-6 sm:p-8 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-[210mm] print:min-h-[297mm]">
+          <div className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-[210mm]">
             {/* Outer Green Border Frame */}
-            <div className="discharge-outer-frame border-2 border-emerald-900 p-2 sm:p-2.5 relative bg-white h-full flex flex-col justify-between">
+            <div className="discharge-outer-frame border-2 border-emerald-900 p-1.5 sm:p-2 relative bg-white flex flex-col justify-between">
               {/* Inner Green Border Line */}
-              <div className="discharge-inner-frame border border-emerald-900 p-4 sm:p-6 relative space-y-3 print:space-y-2.5 flex-1 flex flex-col justify-between">
+              <div className="discharge-inner-frame border border-emerald-900 p-3 sm:p-4 relative space-y-2 print:space-y-1.5 flex-1 flex flex-col justify-between">
 
                 {/* Watermark in background */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-5 overflow-hidden">
-                  <span className="text-8xl sm:text-9xl font-black font-serif text-emerald-950 uppercase tracking-widest rotate-[-15deg]">
+                  <span className="text-7xl sm:text-8xl font-black font-serif text-emerald-950 uppercase tracking-widest rotate-[-15deg]">
                     GBHSS LADHU
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {/* Header Emblem & Title */}
                   <div className="text-center space-y-0.5 relative z-10">
-                    <div className="w-12 h-12 rounded-full border-2 border-emerald-900 mx-auto flex items-center justify-center p-0.5 bg-emerald-50/50">
+                    <div className="w-10 h-10 rounded-full border-2 border-emerald-900 mx-auto flex items-center justify-center p-0.5 bg-emerald-50/50">
                       <div className="w-full h-full rounded-full border border-emerald-900 flex items-center justify-center">
-                        <span className="text-emerald-900 font-bold text-[10px] font-serif">GBHSS</span>
+                        <span className="text-emerald-900 font-bold text-[9px] font-serif">GBHSS</span>
                       </div>
                     </div>
 
-                    <p className="text-[10px] sm:text-[11px] font-serif tracking-[0.25em] text-slate-700 font-bold uppercase mt-1">
+                    <p className="text-[9px] font-serif tracking-[0.2em] text-slate-700 font-bold uppercase mt-0.5">
                       OFFICE OF THE PRINCIPAL
                     </p>
-                    <h1 className="text-xl sm:text-2xl font-black uppercase text-emerald-950 font-serif tracking-tight">
+                    <h1 className="text-lg sm:text-xl font-black uppercase text-emerald-950 font-serif tracking-tight">
                       GOVT. BOYS HIGHER SECONDARY SCHOOL
                     </h1>
-                    <p className="text-xs font-serif font-semibold text-emerald-900 tracking-wider">
+                    <p className="text-[11px] font-serif font-semibold text-emerald-900 tracking-wider">
                       LADHU PAMPORE, PULWAMA, KASHMIR
                     </p>
 
                     {/* Red Framed Title Box */}
-                    <div className="pt-1">
-                      <div className="inline-block border border-amber-800/70 bg-amber-50/30 px-6 py-1 rounded-md shadow-sm">
-                        <span className="text-red-900 font-serif font-extrabold text-sm sm:text-base tracking-widest uppercase">
+                    <div className="pt-0.5">
+                      <div className="inline-block border border-amber-800/70 bg-amber-50/30 px-4 py-0.5 rounded shadow-sm">
+                        <span className="text-red-900 font-serif font-extrabold text-xs sm:text-sm tracking-widest uppercase">
                           DISCHARGE CERTIFICATE
                         </span>
                       </div>
@@ -352,52 +352,52 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                   </div>
 
                   {/* C. No. & Reg No., Admission No. & Date */}
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs font-serif pt-1 relative z-10">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-serif relative z-10">
                     <div className="flex items-baseline">
                       <span className="font-bold text-slate-800 shrink-0">C. No.</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-2 text-slate-900">{activeCandidate.id}</span>
+                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.id}</span>
                     </div>
                     <div className="flex items-baseline">
                       <span className="font-bold text-slate-800 shrink-0">Reg. No.</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-2 text-slate-900">{activeCandidate.enrolmentNumber || `REG-${activeCandidate.id}`}</span>
+                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.enrolmentNumber || `REG-${activeCandidate.id}`}</span>
                     </div>
                     <div className="flex items-baseline">
                       <span className="font-bold text-slate-800 shrink-0">Admission No.</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-2 text-slate-900">{activeCandidate.bankChallanNo || activeCandidate.id}</span>
+                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.bankChallanNo || activeCandidate.id}</span>
                     </div>
                     <div className="flex items-baseline">
                       <span className="font-bold text-slate-800 shrink-0">Date of Issue</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-2 text-slate-900">{new Date().toISOString().split('T')[0]}</span>
+                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{new Date().toISOString().split('T')[0]}</span>
                     </div>
                   </div>
 
                   {/* Personal Details Boxes + Photograph Frame on Right Side */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1 relative z-10 items-center">
-                    <div className="md:col-span-8 space-y-2 text-xs">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-2 relative z-10 items-center">
+                    <div className="md:col-span-8 space-y-1 text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="w-28 font-semibold text-slate-800 shrink-0">Name</span>
-                        <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900">
+                        <span className="w-24 font-semibold text-slate-800 shrink-0">Name</span>
+                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
                           {activeCandidate.fullName}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="w-28 font-semibold text-slate-800 shrink-0">Father's Name</span>
-                        <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900">
+                        <span className="w-24 font-semibold text-slate-800 shrink-0">Father's Name</span>
+                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
                           {activeCandidate.fatherName}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="w-28 font-semibold text-slate-800 shrink-0">Mother's Name</span>
-                        <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900">
+                        <span className="w-24 font-semibold text-slate-800 shrink-0">Mother's Name</span>
+                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
                           {activeCandidate.motherName || 'N/A'}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="w-28 font-semibold text-slate-800 shrink-0">D.O.B. (figures)</span>
-                        <div className="flex-1 border border-stone-300 rounded-md py-1 px-2.5 bg-stone-50/50 font-bold text-slate-900 font-mono">
+                        <span className="w-24 font-semibold text-slate-800 shrink-0">D.O.B. (figures)</span>
+                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 font-mono text-xs">
                           {activeCandidate.dob || '2005-06-14'}
                         </div>
                       </div>
@@ -405,45 +405,45 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
                     {/* Photograph Box (Right Side of Certificate) */}
                     <div className="md:col-span-4 flex flex-col items-center justify-center md:items-end">
-                      <div className="w-28 h-36 border-2 border-emerald-900 rounded-sm bg-emerald-50/20 p-1 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden bg-white">
+                      <div className="w-24 h-28 border-2 border-emerald-900 rounded-sm bg-emerald-50/20 p-0.5 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden bg-white">
                         {activeCandidate.photoUrl ? (
                           <img src={activeCandidate.photoUrl} alt={activeCandidate.fullName} className="w-full h-full object-cover rounded-2xs" />
                         ) : (
-                          <div className="p-2 space-y-1">
-                            <User className="w-8 h-8 text-emerald-900/40 mx-auto" />
-                            <span className="block text-[8px] font-sans font-extrabold text-emerald-950 uppercase tracking-tighter leading-tight">
+                          <div className="p-1 space-y-0.5">
+                            <User className="w-5 h-5 text-emerald-900/40 mx-auto" />
+                            <span className="block text-[7px] font-sans font-extrabold text-emerald-950 uppercase tracking-tighter leading-tight">
                               PASSPORT PHOTO
                             </span>
                           </div>
                         )}
                       </div>
-                      <span className="text-[10px] font-serif font-bold text-emerald-950 uppercase mt-1 tracking-wider">
+                      <span className="text-[8.5px] font-serif font-bold text-emerald-950 uppercase mt-0.5 tracking-wider">
                         APPLICANT PHOTO
                       </span>
                     </div>
                   </div>
 
                   {/* Certificate Text & Statements */}
-                  <div className="space-y-2 text-xs leading-relaxed text-slate-900 pt-1 relative z-10 font-serif">
+                  <div className="space-y-1 text-xs leading-tight text-slate-900 relative z-10 font-serif">
                     <p className="flex flex-wrap items-baseline gap-1">
                       <span>The above mentioned candidate was reading in Class</span>
-                      <span className="border-b border-stone-400 font-bold px-2 font-sans">{activeCandidate.courseApplied || '12th'}</span>
+                      <span className="border-b border-stone-400 font-bold px-1.5 font-sans">{activeCandidate.courseApplied || '12th'}</span>
                       <span className="text-stone-400 line-through">Middle</span> /
                       <span className="text-stone-400 line-through">HS</span> /
                       <strong className="text-red-900 underline font-extrabold">HSS</strong>
                       <span>department up to</span>
-                      <span className="border-b border-stone-400 font-bold px-2">{activeCandidate.session || '2025-2026'}</span>.
+                      <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.session || '2025-2026'}</span>.
                     </p>
 
                     <p className="flex flex-wrap items-baseline gap-1">
                       <span>He appeared in Class</span>
-                      <span className="border-b border-stone-400 font-bold px-2">{activeCandidate.courseApplied || '12th'}</span>
+                      <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.courseApplied || '12th'}</span>
                       <span>examination under</span>
                       <span className="text-stone-400 line-through">Cluster</span> /
                       <span className="text-stone-400 line-through">School</span> /
                       <strong className="text-red-900 underline font-extrabold">Board</strong>
                       <span>Roll No.</span>
-                      <span className="border-b border-stone-400 font-bold px-2 font-mono">{activeCandidate.assignedRollNumber || activeCandidate.id}</span>
+                      <span className="border-b border-stone-400 font-bold px-1.5 font-mono">{activeCandidate.assignedRollNumber || activeCandidate.id}</span>
                       <span>and was declared</span>
                       <strong className="text-red-900 underline font-extrabold">Pass</strong> /
                       <span className="text-stone-400 line-through">Fail</span> /
@@ -452,13 +452,13 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
                     <p className="flex items-baseline gap-2">
                       <span>Session</span>
-                      <span className="border-b border-stone-400 font-bold px-3">{activeCandidate.session || '2025-2026'}</span>
+                      <span className="border-b border-stone-400 font-bold px-2">{activeCandidate.session || '2025-2026'}</span>
                       <span>— He has paid all the dues.</span>
                     </p>
 
                     <p className="flex items-baseline gap-2">
                       <span className="shrink-0">Attendance:</span>
-                      <span className="border-b border-stone-400 flex-1 font-bold font-mono px-2">188 / 210 Days (89.5%)</span>
+                      <span className="border-b border-stone-400 flex-1 font-bold font-mono px-1.5">188 / 210 Days (89.5%)</span>
                     </p>
 
                     <p className="flex items-baseline gap-2">
@@ -468,30 +468,30 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
                     <p className="flex items-baseline gap-2">
                       <span className="shrink-0">Games Offered:</span>
-                      <span className="border-b border-stone-400 flex-1 font-bold px-2">Cricket, Football, Athletics</span>
+                      <span className="border-b border-stone-400 flex-1 font-bold px-1.5">Cricket, Football, Athletics</span>
                     </p>
                   </div>
 
                   {/* Marks Summary Box */}
-                  <div className="border border-emerald-900 rounded-md p-2.5 bg-emerald-50/20 relative z-10 mt-2">
-                    <div className="grid grid-cols-3 gap-2 text-center font-serif text-xs">
+                  <div className="border border-emerald-900 rounded p-1.5 bg-emerald-50/20 relative z-10 mt-1">
+                    <div className="grid grid-cols-3 gap-1 text-center font-serif text-xs">
                       {(() => {
                         const docGrade = calculateGradeAndPercentage(activeCandidate.marksObtained || 450, activeCandidate.totalMarks || 500);
                         return (
                           <>
                             <div>
-                              <span className="text-[10px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">MARKS OBTAINED</span>
-                              <span className="font-bold text-emerald-950 text-sm font-mono">{activeCandidate.marksObtained || 450} / {activeCandidate.totalMarks || 500}</span>
+                              <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">MARKS OBTAINED</span>
+                              <span className="font-bold text-emerald-950 text-xs font-mono">{activeCandidate.marksObtained || 450} / {activeCandidate.totalMarks || 500}</span>
                             </div>
 
-                            <div className="border-x border-emerald-900/30 px-2">
-                              <span className="text-[10px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">AUTOCALCULATED GRADE</span>
-                              <span className="font-bold text-slate-900 text-sm font-mono">{activeCandidate.grade || docGrade.grade}</span>
+                            <div className="border-x border-emerald-900/30 px-1">
+                              <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">GRADE</span>
+                              <span className="font-bold text-slate-900 text-xs font-mono">{activeCandidate.grade || docGrade.grade}</span>
                             </div>
 
                             <div>
-                              <span className="text-[10px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">% OF MARKS</span>
-                              <span className="font-bold text-slate-900 text-sm font-mono">
+                              <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">% OF MARKS</span>
+                              <span className="font-bold text-slate-900 text-xs font-mono">
                                 {activeCandidate.percentage || docGrade.percentageFormatted}%
                               </span>
                             </div>
@@ -503,26 +503,26 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                 </div>
 
                 {/* Bottom Signatures & Seal */}
-                <div className="pt-6 sm:pt-8 grid grid-cols-4 gap-2 text-center text-xs font-serif font-bold text-slate-800 relative z-10">
-                  <div className="space-y-4">
-                    <div className="border-b border-stone-500 w-20 sm:w-24 mx-auto"></div>
-                    <span>I/C</span>
+                <div className="pt-4 sm:pt-5 grid grid-cols-4 gap-2 text-center text-xs font-serif font-bold text-slate-800 relative z-10">
+                  <div className="space-y-2">
+                    <div className="border-b border-stone-500 w-16 sm:w-20 mx-auto"></div>
+                    <span className="text-[10px]">I/C</span>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="border-b border-stone-500 w-20 sm:w-24 mx-auto"></div>
-                    <span>CHECKED BY</span>
+                  <div className="space-y-2">
+                    <div className="border-b border-stone-500 w-16 sm:w-20 mx-auto"></div>
+                    <span className="text-[10px]">CHECKED BY</span>
                   </div>
 
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-14 h-14 rounded-full border border-dashed border-stone-400 flex items-center justify-center p-1 text-[8px] font-sans text-stone-400 text-center uppercase tracking-tighter leading-tight">
+                    <div className="w-10 h-10 rounded-full border border-dashed border-stone-400 flex items-center justify-center p-0.5 text-[7px] font-sans text-stone-400 text-center uppercase tracking-tighter leading-tight">
                       OFFICE SEAL
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="border-b border-stone-900 w-20 sm:w-28 mx-auto"></div>
-                    <span className="font-black text-slate-900 uppercase">PRINCIPAL</span>
+                  <div className="space-y-2">
+                    <div className="border-b border-stone-900 w-16 sm:w-24 mx-auto"></div>
+                    <span className="font-black text-slate-900 text-[10px] uppercase">PRINCIPAL</span>
                   </div>
                 </div>
 

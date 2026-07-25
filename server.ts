@@ -46,6 +46,7 @@ export interface Candidate {
   session: string;
   assignedRollNumber?: string;
   enrolmentNumber?: string;
+  admNo?: string;
   status: 'Pending' | 'Approved' | 'Fee Deposited' | 'Admitted' | 'Rejected';
   dcStatus: 'Not Requested' | 'Requested' | 'Approved' | 'Issued';
   dcReason?: string;
@@ -385,17 +386,33 @@ app.patch('/api/candidates/:id', (req, res) => {
 
 // Delete individual candidate by ID
 app.delete('/api/candidates/:id', (req, res) => {
-  const id = req.params.id;
-  const candidates = readCandidatesFromExcel();
-  const initialLength = candidates.length;
-  const filtered = candidates.filter((c) => c.id.toLowerCase() !== id.toLowerCase());
+  try {
+    const rawId = req.params.id;
+    const cleanId = String(rawId || '').trim().toLowerCase();
 
-  if (filtered.length === initialLength) {
-    return res.status(404).json({ success: false, message: 'Candidate record not found' });
+    let candidates = readCandidatesFromExcel();
+    const initialLength = candidates.length;
+
+    candidates = candidates.filter((c) => {
+      const cid = String(c.id || '').trim().toLowerCase();
+      const cRoll = String(c.assignedRollNumber || '').trim().toLowerCase();
+      const cEnr = String(c.enrolmentNumber || '').trim().toLowerCase();
+      const cChallan = String(c.bankChallanNo || '').trim().toLowerCase();
+      const cAdm = String(c.admNo || '').trim().toLowerCase();
+
+      return cid !== cleanId && cRoll !== cleanId && cEnr !== cleanId && cChallan !== cleanId && cAdm !== cleanId;
+    });
+
+    writeCandidatesToExcel(candidates);
+    res.json({
+      success: true,
+      message: `Candidate record deleted successfully from backend Excel database.`,
+      removed: initialLength !== candidates.length
+    });
+  } catch (err: any) {
+    console.error('Error deleting candidate:', err);
+    res.status(500).json({ success: false, message: err?.message || 'Server error deleting candidate record' });
   }
-
-  writeCandidatesToExcel(filtered);
-  res.json({ success: true, message: `Candidate ${id} deleted successfully from backend Excel database.` });
 });
 
 // Delete ALL candidate records (Clear Database)
