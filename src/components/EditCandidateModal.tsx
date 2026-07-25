@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Candidate } from '../types';
 import { calculateGradeAndPercentage } from '../utils/grade';
 import { updateCandidateRecord } from '../utils/api';
+import { triggerPrint } from '../utils/print';
 import { 
   X, 
   Save, 
@@ -15,7 +16,11 @@ import {
   Image as ImageIcon,
   Sparkles,
   Award,
-  AlertCircle
+  AlertCircle,
+  Printer,
+  CheckSquare,
+  Square,
+  ClipboardCheck
 } from 'lucide-react';
 
 interface EditCandidateModalProps {
@@ -82,15 +87,27 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
   };
 
   const handleAutoAssignRoll = () => {
-    const randomRoll = `2026-${Math.floor(100 + Math.random() * 900)}`;
-    const randomEnr = `JKB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const randomAdm = `BHSS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const randomRoll = formData.assignedRollNumber || `2026-${Math.floor(100 + Math.random() * 900)}`;
+    const randomEnr = formData.enrolmentNumber || `JKB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const randomAdm = formData.admNo || `BHSS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const today = new Date().toISOString().split('T')[0];
     setFormData((prev) => ({
       ...prev,
-      assignedRollNumber: prev.assignedRollNumber || randomRoll,
-      enrolmentNumber: prev.enrolmentNumber || randomEnr,
-      admNo: prev.admNo || randomAdm,
+      assignedRollNumber: randomRoll,
+      enrolmentNumber: randomEnr,
+      admNo: randomAdm,
       status: 'Approved',
+      verifiedBy: prev.verifiedBy || 'Incharge Admission Cell',
+      verifiedDate: prev.verifiedDate || today,
+      verificationRemarks: prev.verificationRemarks || 'All original certificates & credentials physically verified by Admission Cell.',
+      verifiedDocuments: {
+        marksCertificate: true,
+        aadhaarProof: true,
+        categoryCertificate: true,
+        characterCertificate: true,
+        photoMatched: true,
+        ...prev.verifiedDocuments,
+      },
     }));
   };
 
@@ -98,6 +115,7 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
     const randomRoll = formData.assignedRollNumber || `2026-${Math.floor(100 + Math.random() * 900)}`;
     const randomEnr = formData.enrolmentNumber || `JKB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const randomAdm = formData.admNo || `BHSS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const today = new Date().toISOString().split('T')[0];
     setFormData((prev) => ({
       ...prev,
       assignedRollNumber: randomRoll,
@@ -105,6 +123,17 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
       admNo: randomAdm,
       status: 'Admitted',
       feeStatus: 'Paid',
+      verifiedBy: prev.verifiedBy || 'Incharge Admission Cell',
+      verifiedDate: prev.verifiedDate || today,
+      verificationRemarks: prev.verificationRemarks || 'Fee paid & Admission confirmed by Admission Incharge.',
+      verifiedDocuments: {
+        marksCertificate: true,
+        aadhaarProof: true,
+        categoryCertificate: true,
+        characterCertificate: true,
+        photoMatched: true,
+        ...prev.verifiedDocuments,
+      },
     }));
   };
 
@@ -587,18 +616,70 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
           {/* TAB 3: VERIFICATION & ADMISSION STATUS */}
           {activeTab === 'verification' && (
             <div className="space-y-4">
-              <div className="p-4 bg-emerald-50/80 border border-emerald-300 rounded-xl space-y-3">
+              {/* Document Verification Checklist */}
+              <div className="p-4 bg-slate-900 text-white rounded-xl border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wide text-emerald-400 flex items-center gap-1.5">
+                    <ClipboardCheck className="w-4 h-4 text-emerald-400" />
+                    Incharge Document Verification Checklist
+                  </h3>
+                  <span className="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded font-mono border border-emerald-800">
+                    Admission Cell Duty
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                  {[
+                    { key: 'marksCertificate', label: '10th/12th Original Marks Certificate' },
+                    { key: 'aadhaarProof', label: 'Aadhaar Card / Photo ID Proof' },
+                    { key: 'categoryCertificate', label: 'Category / Domicile Certificate' },
+                    { key: 'characterCertificate', label: 'School Discharge / Character Cert.' },
+                    { key: 'photoMatched', label: 'Candidate Photograph Cross-Matched' },
+                  ].map((doc) => {
+                    const isChecked = !!(formData.verifiedDocuments as any)?.[doc.key];
+                    return (
+                      <label
+                        key={doc.key}
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            verifiedDocuments: {
+                              ...prev.verifiedDocuments,
+                              [doc.key]: !isChecked,
+                            },
+                          }));
+                        }}
+                        className={`flex items-center gap-2 p-2 rounded-lg border transition cursor-pointer ${
+                          isChecked
+                            ? 'bg-emerald-950/60 border-emerald-600 text-emerald-200'
+                            : 'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-slate-600'
+                        }`}
+                      >
+                        {isChecked ? (
+                          <CheckSquare className="w-4 h-4 text-emerald-400 shrink-0" />
+                        ) : (
+                          <Square className="w-4 h-4 text-slate-500 shrink-0" />
+                        )}
+                        <span className="text-[11px] font-semibold">{doc.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Incharge Sign-off & Verification Remarks */}
+              <div className="p-4 bg-emerald-50/90 border border-emerald-300 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-extrabold text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                    Official Office Record Verification
+                    Incharge Admission Sign-Off & Verification
                   </h3>
                   <button
                     type="button"
                     onClick={handleAutoAssignRoll}
-                    className="text-[11px] font-bold text-blue-800 underline hover:text-blue-900"
+                    className="text-[11px] font-bold text-blue-800 underline hover:text-blue-900 cursor-pointer"
                   >
-                    Auto-Generate Numbers
+                    Auto-Verify & Assign Roll
                   </button>
                 </div>
 
@@ -654,6 +735,71 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
                       className="w-full px-3 py-2 border border-emerald-400 rounded-lg text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-white"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">Verified By (Incharge Officer)</label>
+                    <input
+                      type="text"
+                      name="verifiedBy"
+                      value={formData.verifiedBy || 'Incharge Admission Cell'}
+                      onChange={handleChange}
+                      placeholder="Name / Designation of Incharge"
+                      className="w-full px-3 py-2 border border-emerald-300 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">Verification Date</label>
+                    <input
+                      type="date"
+                      name="verifiedDate"
+                      value={formData.verifiedDate || new Date().toISOString().split('T')[0]}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-emerald-300 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-slate-800">Incharge Verification Remarks</label>
+                    <div className="flex gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            verificationRemarks: 'All original certificates & credentials physically verified. Approved for admission.',
+                          }))
+                        }
+                        className="text-[10px] font-bold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded hover:bg-emerald-300 cursor-pointer"
+                      >
+                        + Approved Preset
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            verificationRemarks: 'Provisionally verified subject to submission of pending Domicile / Category certificate.',
+                          }))
+                        }
+                        className="text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded hover:bg-amber-300 cursor-pointer"
+                      >
+                        + Provisional Preset
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    name="verificationRemarks"
+                    value={formData.verificationRemarks || ''}
+                    onChange={handleChange}
+                    rows={2}
+                    placeholder="Enter official comments or verification notes for student record..."
+                    className="w-full px-3 py-2 border border-emerald-300 rounded-lg text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-white"
+                  />
                 </div>
               </div>
 

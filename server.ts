@@ -55,6 +55,16 @@ export interface Candidate {
   bankChallanNo?: string;
   photoUrl?: string;
   conductRating?: string;
+  verificationRemarks?: string;
+  verifiedBy?: string;
+  verifiedDate?: string;
+  verifiedDocuments?: {
+    marksCertificate?: boolean;
+    aadhaarProof?: boolean;
+    categoryCertificate?: boolean;
+    characterCertificate?: boolean;
+    photoMatched?: boolean;
+  };
 }
 
 // Initial Sample Candidates set to empty array as requested
@@ -110,6 +120,9 @@ function readCandidatesFromExcel(): Candidate[] {
       bankChallanNo: row['Bank Challan No'] ? String(row['Bank Challan No']) : undefined,
       conductRating: String(row['Conduct Rating'] || 'Good'),
       photoUrl: row['Photo URL'] ? String(row['Photo URL']) : undefined,
+      verificationRemarks: row['Verification Remarks'] ? String(row['Verification Remarks']) : undefined,
+      verifiedBy: row['Verified By'] ? String(row['Verified By']) : undefined,
+      verifiedDate: row['Verified Date'] ? String(row['Verified Date']) : undefined,
     }));
   } catch (err) {
     console.error('Error reading Excel backend data:', err);
@@ -153,6 +166,9 @@ function writeCandidatesToExcel(candidates: Candidate[]) {
       'Conduct Rating': c.conductRating || 'Good',
       'Application Date': c.applicationDate,
       'Photo URL': c.photoUrl || '',
+      'Verification Remarks': c.verificationRemarks || '',
+      'Verified By': c.verifiedBy || '',
+      'Verified Date': c.verifiedDate || '',
     }));
 
     const worksheet = xlsx.utils.json_to_sheet(excelRows);

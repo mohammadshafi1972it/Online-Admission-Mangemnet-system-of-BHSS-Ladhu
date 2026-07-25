@@ -22,7 +22,12 @@ import {
   Trash2,
   AlertTriangle,
   Edit,
-  UserCheck
+  UserCheck,
+  ShieldCheck,
+  CheckSquare,
+  Square,
+  Check,
+  ClipboardCheck
 } from 'lucide-react';
 
 interface CandidatesListProps {
@@ -41,8 +46,17 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [activeVerificationTab, setActiveVerificationTab] = useState<'All' | 'Pending' | 'Approved' | 'Admitted' | 'Rejected'>('All');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
+
+  // Counts for Verification Tabs
+  const totalCount = candidates.length;
+  const pendingCount = candidates.filter((c) => c.status === 'Pending').length;
+  const approvedCount = candidates.filter((c) => c.status === 'Approved').length;
+  const admittedCount = candidates.filter((c) => c.status === 'Admitted' || c.status === 'Fee Deposited').length;
+  const rejectedCount = candidates.filter((c) => c.status === 'Rejected').length;
 
   // Unique list of courses for filtering dropdown
   const courses = Array.from(new Set(candidates.map((c) => c.courseApplied)));
@@ -62,8 +76,111 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
     const matchesCourse = !courseFilter || c.courseApplied === courseFilter;
     const matchesStatus = !statusFilter || c.status === statusFilter;
 
-    return matchesSearch && matchesCourse && matchesStatus;
+    const matchesVerificationTab =
+      activeVerificationTab === 'All'
+        ? true
+        : activeVerificationTab === 'Pending'
+        ? c.status === 'Pending'
+        : activeVerificationTab === 'Approved'
+        ? c.status === 'Approved'
+        : activeVerificationTab === 'Admitted'
+        ? c.status === 'Admitted' || c.status === 'Fee Deposited'
+        : c.status === 'Rejected';
+
+    return matchesSearch && matchesCourse && matchesStatus && matchesVerificationTab;
   });
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(filteredCandidates.map((c) => c.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectRow = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleQuickVerifyAndApprove = async (candidate: Candidate) => {
+    setLoadingId(candidate.id);
+    const today = new Date().toISOString().split('T')[0];
+    const roll = candidate.assignedRollNumber || `2026-${Math.floor(100 + Math.random() * 900)}`;
+    const enr = candidate.enrolmentNumber || `JKB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const adm = candidate.admNo || `BHSS-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    try {
+      await updateCandidateRecord(candidate.id, {
+        status: 'Approved',
+        assignedRollNumber: roll,
+        enrolmentNumber: enr,
+        admNo: adm,
+        verifiedBy: 'Incharge Admission Cell',
+        verifiedDate: today,
+        verificationRemarks: 'Verified and approved by Admission Incharge.',
+      });
+      onRefresh();
+    } catch (err) {
+      alert('Failed to verify and approve candidate.');
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Are you sure you want to verify & approve all ${selectedIds.length} selected applications?`)) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    for (const id of selectedIds) {
+      const candidate = candidates.find((c) => c.id === id);
+      if (candidate) {
+        const roll = candidate.assignedRollNumber || `2026-${Math.floor(100 + Math.random() * 900)}`;
+        const enr = candidate.enrolmentNumber || `JKB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+        const adm = candidate.admNo || `BHSS-${Math.floor(1000 + Math.random() * 9000)}`;
+        await updateCandidateRecord(candidate.id, {
+          status: 'Approved',
+          assignedRollNumber: roll,
+          enrolmentNumber: enr,
+          admNo: adm,
+          verifiedBy: 'Incharge Admission Cell (Bulk)',
+          verifiedDate: today,
+          verificationRemarks: 'Bulk verified & approved by Incharge Admission.',
+        });
+      }
+    }
+    setSelectedIds([]);
+    onRefresh();
+  };
+
+  const handleBulkAdmit = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Are you sure you want to confirm admission & mark fee paid for ${selectedIds.length} selected candidates?`)) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    for (const id of selectedIds) {
+      const candidate = candidates.find((c) => c.id === id);
+      if (candidate) {
+        const roll = candidate.assignedRollNumber || `2026-${Math.floor(100 + Math.random() * 900)}`;
+        const enr = candidate.enrolmentNumber || `JKB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+        const adm = candidate.admNo || `BHSS-${Math.floor(1000 + Math.random() * 9000)}`;
+        await updateCandidateRecord(candidate.id, {
+          status: 'Admitted',
+          feeStatus: 'Paid',
+          assignedRollNumber: roll,
+          enrolmentNumber: enr,
+          admNo: adm,
+          verifiedBy: 'Incharge Admission Cell (Bulk)',
+          verifiedDate: today,
+          verificationRemarks: 'Bulk admission confirmed & fee marked paid by Incharge Admission.',
+        });
+      }
+    }
+    setSelectedIds([]);
+    onRefresh();
+  };
 
   const handleStatusUpdate = async (candidate: Candidate, newStatus: Candidate['status']) => {
     setLoadingId(candidate.id);
@@ -168,6 +285,127 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
         </div>
       </div>
 
+      {/* INCHARGE VERIFICATION TABS & AUDIT COUNTERS */}
+      <div className="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-slate-800 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <span className="font-extrabold text-sm uppercase tracking-wide text-slate-100">Incharge Admission Verification Queue</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
+            <span>Pending Action: <strong className="text-amber-400">{pendingCount}</strong></span>
+            <span>•</span>
+            <span>Verified: <strong className="text-emerald-400">{approvedCount + admittedCount}</strong></span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setActiveVerificationTab('All')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              activeVerificationTab === 'All'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            <span>All Applications</span>
+            <span className="bg-slate-950/60 px-1.5 py-0.5 rounded text-[10px] font-mono">{totalCount}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveVerificationTab('Pending')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer relative ${
+              activeVerificationTab === 'Pending'
+                ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
+                : 'bg-slate-800 text-amber-300 hover:bg-slate-700'
+            }`}
+          >
+            {pendingCount > 0 && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping absolute -top-0.5 -right-0.5"></span>
+            )}
+            <Clock className="w-3.5 h-3.5" />
+            <span>Pending Incharge Verification</span>
+            <span className="bg-amber-950/80 text-amber-200 px-1.5 py-0.5 rounded text-[10px] font-mono">{pendingCount}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveVerificationTab('Approved')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              activeVerificationTab === 'Approved'
+                ? 'bg-blue-500 text-white shadow-md'
+                : 'bg-slate-800 text-blue-300 hover:bg-slate-700'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Verified & Roll Assigned</span>
+            <span className="bg-slate-950/60 px-1.5 py-0.5 rounded text-[10px] font-mono">{approvedCount}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveVerificationTab('Admitted')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              activeVerificationTab === 'Admitted'
+                ? 'bg-emerald-600 text-white shadow-md'
+                : 'bg-slate-800 text-emerald-300 hover:bg-slate-700'
+            }`}
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            <span>Fully Admitted & Paid</span>
+            <span className="bg-slate-950/60 px-1.5 py-0.5 rounded text-[10px] font-mono">{admittedCount}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveVerificationTab('Rejected')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              activeVerificationTab === 'Rejected'
+                ? 'bg-rose-600 text-white shadow-md'
+                : 'bg-slate-800 text-rose-300 hover:bg-slate-700'
+            }`}
+          >
+            <XCircle className="w-3.5 h-3.5" />
+            <span>Rejected</span>
+            <span className="bg-slate-950/60 px-1.5 py-0.5 rounded text-[10px] font-mono">{rejectedCount}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* BULK ACTIONS TOOLBAR WHEN ITEMS SELECTED */}
+      {selectedIds.length > 0 && (
+        <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl p-4 shadow-xl border border-emerald-600/50 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <CheckSquare className="w-5 h-5 text-emerald-400" />
+            <span className="font-extrabold text-sm">
+              <strong className="text-emerald-300 underline">{selectedIds.length}</strong> Student Record(s) Selected
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleBulkApprove}
+              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition shadow flex items-center gap-1.5 cursor-pointer"
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              Bulk Verify & Approve
+            </button>
+
+            <button
+              onClick={handleBulkAdmit}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition shadow flex items-center gap-1.5 cursor-pointer"
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              Bulk Confirm Admission
+            </button>
+
+            <button
+              onClick={() => setSelectedIds([])}
+              className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+            >
+              Deselect All
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-md border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="relative w-full md:w-96">
@@ -218,191 +456,240 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-900 text-slate-200 font-bold uppercase tracking-wider text-[11px] border-b border-slate-800">
               <tr>
+                <th className="py-3.5 px-3 text-center w-10">
+                  <input
+                    type="checkbox"
+                    checked={filteredCandidates.length > 0 && selectedIds.length === filteredCandidates.length}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                  />
+                </th>
                 <th className="py-3.5 px-4">Student & Application ID</th>
                 <th className="py-3.5 px-4">Father & Contact</th>
                 <th className="py-3.5 px-4">Stream & Marks</th>
                 <th className="py-3.5 px-4">Assigned Roll & Enrolment</th>
-                <th className="py-3.5 px-4">Admission Status</th>
+                <th className="py-3.5 px-4">Verification & Status</th>
                 <th className="py-3.5 px-4">Fee Payment</th>
-                <th className="py-3.5 px-4 text-center">QR & Auto Documents</th>
+                <th className="py-3.5 px-4 text-center">Incharge Actions & Certificates</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-200">
               {filteredCandidates.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-slate-500 font-medium">
-                    No candidates found matching the filters.
+                  <td colSpan={8} className="text-center py-12 text-slate-500 font-medium">
+                    No candidates found matching the active filters or verification status.
                   </td>
                 </tr>
               ) : (
-                filteredCandidates.map((candidate) => (
-                  <tr key={candidate.id} className="hover:bg-slate-50/80 transition">
-                    {/* Name & Application ID */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-800 font-extrabold flex items-center justify-center shrink-0 text-sm">
-                          {candidate.fullName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-sm">{candidate.fullName}</p>
-                          <span className="font-mono text-[11px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded font-semibold border border-blue-200">
-                            {candidate.id}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
+                filteredCandidates.map((candidate) => {
+                  const isSelected = selectedIds.includes(candidate.id);
+                  const isVerified = !!candidate.verifiedBy || candidate.status === 'Approved' || candidate.status === 'Admitted';
 
-                    {/* Father & Contact */}
-                    <td className="py-3.5 px-4 text-slate-700">
-                      <p className="font-semibold">{candidate.fatherName}</p>
-                      <p className="text-slate-500">{candidate.mobile}</p>
-                    </td>
+                  return (
+                    <tr
+                      key={candidate.id}
+                      className={`transition ${
+                        isSelected ? 'bg-emerald-50/70 hover:bg-emerald-100/70' : 'hover:bg-slate-50/80'
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <td className="py-3.5 px-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleSelectRow(candidate.id)}
+                          className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                        />
+                      </td>
 
-                    {/* Course & Marks */}
-                    <td className="py-3.5 px-4">
-                      <p className="font-bold text-slate-900">{candidate.courseApplied}</p>
-                      {(() => {
-                        const g = calculateGradeAndPercentage(candidate.marksObtained, candidate.totalMarks);
-                        return (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-emerald-700 font-extrabold text-xs">
-                              {candidate.percentage || g.percentageFormatted}% ({candidate.marksObtained}/{candidate.totalMarks})
-                            </span>
-                            <span className="px-1.5 py-0.5 text-[10px] font-black rounded bg-amber-100 text-amber-900 border border-amber-300">
-                              Grade {candidate.grade || g.grade}
+                      {/* Name & Application ID */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-800 font-extrabold flex items-center justify-center shrink-0 text-sm border border-blue-200">
+                            {candidate.fullName.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                              {candidate.fullName}
+                              {isVerified && (
+                                <ShieldCheck className="w-4 h-4 text-emerald-600 inline shrink-0" title="Incharge Verified Record" />
+                              )}
+                            </p>
+                            <span className="font-mono text-[11px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded font-semibold border border-blue-200">
+                              {candidate.id}
                             </span>
                           </div>
-                        );
-                      })()}
-                    </td>
-
-                    {/* Assigned Roll & Enrolment */}
-                    <td className="py-3.5 px-4 font-mono">
-                      {candidate.assignedRollNumber ? (
-                        <div>
-                          <p className="font-bold text-slate-900">Roll: {candidate.assignedRollNumber}</p>
-                          <p className="text-[10px] text-slate-500">Enr: {candidate.enrolmentNumber}</p>
                         </div>
-                      ) : (
-                        <span className="text-amber-600 font-sans italic text-[11px]">Pending Approval</span>
-                      )}
-                    </td>
+                      </td>
 
-                    {/* Status Toggle */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2.5 py-1 rounded-full font-bold text-[11px] uppercase ${
-                          candidate.status === 'Admitted'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                            : candidate.status === 'Approved'
-                            ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                            : 'bg-amber-100 text-amber-800 border border-amber-300'
-                        }`}>
-                          {candidate.status}
-                        </span>
+                      {/* Father & Contact */}
+                      <td className="py-3.5 px-4 text-slate-700">
+                        <p className="font-semibold text-slate-900">{candidate.fatherName}</p>
+                        <p className="text-slate-500 text-[11px]">{candidate.mobile}</p>
+                      </td>
 
-                        {candidate.status === 'Pending' && (
-                          <button
-                            onClick={() => handleStatusUpdate(candidate, 'Approved')}
-                            disabled={loadingId === candidate.id}
-                            className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-[10px] transition"
-                            title="Approve and assign Roll Number"
-                          >
-                            Approve
-                          </button>
+                      {/* Course & Marks */}
+                      <td className="py-3.5 px-4">
+                        <p className="font-bold text-slate-900">{candidate.courseApplied}</p>
+                        {(() => {
+                          const g = calculateGradeAndPercentage(candidate.marksObtained, candidate.totalMarks);
+                          return (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-emerald-700 font-extrabold text-xs">
+                                {candidate.percentage || g.percentageFormatted}% ({candidate.marksObtained}/{candidate.totalMarks})
+                              </span>
+                              <span className="px-1.5 py-0.5 text-[10px] font-black rounded bg-amber-100 text-amber-900 border border-amber-300">
+                                Grade {candidate.grade || g.grade}
+                              </span>
+                            </div>
+                          );
+                        })()}
+                      </td>
+
+                      {/* Assigned Roll & Enrolment */}
+                      <td className="py-3.5 px-4 font-mono">
+                        {candidate.assignedRollNumber ? (
+                          <div>
+                            <p className="font-bold text-slate-900">Roll: {candidate.assignedRollNumber}</p>
+                            <p className="text-[10px] text-slate-500">Enr: {candidate.enrolmentNumber}</p>
+                          </div>
+                        ) : (
+                          <span className="text-amber-700 font-sans italic text-[11px] font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block">
+                            Pending Assignment
+                          </span>
                         )}
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Fee Payment */}
-                    <td className="py-3.5 px-4">
-                      <button
-                        onClick={() => handleFeePaymentToggle(candidate)}
-                        disabled={loadingId === candidate.id}
-                        className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition border flex items-center gap-1 ${
-                          candidate.feeStatus === 'Paid'
-                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                            : 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100'
-                        }`}
-                      >
-                        <IndianRupee className="w-3 h-3" />
-                        {candidate.feeStatus === 'Paid' ? 'Paid (₹' + candidate.feeAmount + ')' : 'Mark Paid'}
-                      </button>
-                    </td>
+                      {/* Verification & Status */}
+                      <td className="py-3.5 px-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`px-2.5 py-1 rounded-full font-bold text-[11px] uppercase ${
+                                candidate.status === 'Admitted'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : candidate.status === 'Approved'
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                                  : candidate.status === 'Rejected'
+                                  ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                                  : 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold'
+                              }`}
+                            >
+                              {candidate.status}
+                            </span>
 
-                    {/* Quick Document Generator Buttons & Edit */}
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
+                            {candidate.status === 'Pending' && (
+                              <button
+                                onClick={() => handleQuickVerifyAndApprove(candidate)}
+                                disabled={loadingId === candidate.id}
+                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] transition shadow-sm flex items-center gap-1 cursor-pointer"
+                                title="One-Click Verify & Approve Student Record"
+                              >
+                                <UserCheck className="w-3 h-3" />
+                                Verify
+                              </button>
+                            )}
+                          </div>
+
+                          {candidate.verifiedBy && (
+                            <p className="text-[10px] text-emerald-800 font-semibold flex items-center gap-1">
+                              <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <span>Verified by {candidate.verifiedBy}</span>
+                            </p>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Fee Payment */}
+                      <td className="py-3.5 px-4">
                         <button
-                          onClick={() => setEditingCandidate(candidate)}
-                          className="px-2 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-[11px] shadow-sm flex items-center gap-1 transition border border-emerald-600 cursor-pointer"
-                          title="View & Modify Submitted Student Data for In-charge Verification"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                          View/Edit
-                        </button>
-
-                        <button
-                          onClick={() => onOpenQR(candidate)}
-                          className="p-1.5 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition border border-teal-200"
-                          title="View Student Verification QR Code"
-                        >
-                          <QrCode className="w-4 h-4" />
-                        </button>
-
-                        <button
-                          onClick={() => onOpenDocuments(candidate, 'discharge')}
-                          className="p-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition border border-amber-200 text-[11px] font-bold"
-                          title="Generate Discharge Certificate (DC)"
-                        >
-                          DC
-                        </button>
-
-                        <button
-                          onClick={() => onOpenDocuments(candidate, 'character')}
-                          className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition border border-indigo-200 text-[11px] font-bold"
-                          title="Generate Character Certificate"
-                        >
-                          Char
-                        </button>
-
-                        <button
-                          onClick={() => onOpenDocuments(candidate, 'provisional')}
-                          className="p-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition border border-blue-200 text-[11px] font-bold"
-                          title="Generate Provisional Certificate"
-                        >
-                          Prov
-                        </button>
-
-                        <button
-                          onClick={() => onOpenDocuments(candidate, 'library')}
-                          className="p-1.5 rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200 transition border border-slate-300 text-[11px] font-bold"
-                          title="Generate Library Form & Pass"
-                        >
-                          Lib
-                        </button>
-
-                        <button
-                          onClick={() => onOpenDocuments(candidate, 'bank-slip')}
-                          className="p-1.5 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition border border-emerald-200 text-[11px] font-bold"
-                          title="Generate Bank Fee Deposition Slip"
-                        >
-                          Slip
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteCandidate(candidate)}
+                          onClick={() => handleFeePaymentToggle(candidate)}
                           disabled={loadingId === candidate.id}
-                          className="p-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 transition border border-rose-200"
-                          title="Delete Student Record"
+                          className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition border flex items-center gap-1 cursor-pointer ${
+                            candidate.feeStatus === 'Paid'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                              : 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100'
+                          }`}
                         >
-                          <Trash2 className="w-4 h-4 text-rose-600" />
+                          <IndianRupee className="w-3 h-3" />
+                          {candidate.feeStatus === 'Paid' ? 'Paid (₹' + (candidate.feeAmount || 1400) + ')' : 'Mark Paid'}
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+
+                      {/* Quick Document Generator Buttons & Edit */}
+                      <td className="py-3.5 px-4 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => setEditingCandidate(candidate)}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-[11px] shadow-sm flex items-center gap-1 transition border border-emerald-700 cursor-pointer"
+                            title="View/Modify Submitted Data & Official Verification"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                            View/Edit
+                          </button>
+
+                          <button
+                            onClick={() => onOpenQR(candidate)}
+                            className="p-1.5 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition border border-teal-200 cursor-pointer"
+                            title="View Student Verification QR Code"
+                          >
+                            <QrCode className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            onClick={() => onOpenDocuments(candidate, 'discharge')}
+                            className="p-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition border border-amber-200 text-[11px] font-bold cursor-pointer"
+                            title="Generate Discharge Certificate (DC)"
+                          >
+                            DC
+                          </button>
+
+                          <button
+                            onClick={() => onOpenDocuments(candidate, 'character')}
+                            className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition border border-indigo-200 text-[11px] font-bold cursor-pointer"
+                            title="Generate Character Certificate"
+                          >
+                            Char
+                          </button>
+
+                          <button
+                            onClick={() => onOpenDocuments(candidate, 'provisional')}
+                            className="p-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition border border-blue-200 text-[11px] font-bold cursor-pointer"
+                            title="Generate Provisional Certificate"
+                          >
+                            Prov
+                          </button>
+
+                          <button
+                            onClick={() => onOpenDocuments(candidate, 'library')}
+                            className="p-1.5 rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200 transition border border-slate-300 text-[11px] font-bold cursor-pointer"
+                            title="Generate Library Form & Pass"
+                          >
+                            Lib
+                          </button>
+
+                          <button
+                            onClick={() => onOpenDocuments(candidate, 'bank-slip')}
+                            className="p-1.5 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition border border-emerald-200 text-[11px] font-bold cursor-pointer"
+                            title="Generate Bank Fee Deposition Slip"
+                          >
+                            Slip
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteCandidate(candidate)}
+                            disabled={loadingId === candidate.id}
+                            className="p-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 transition border border-rose-200 cursor-pointer"
+                            title="Delete Student Record"
+                          >
+                            <Trash2 className="w-4 h-4 text-rose-600" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

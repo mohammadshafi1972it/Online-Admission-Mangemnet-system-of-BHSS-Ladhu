@@ -77,6 +77,18 @@ export interface Candidate {
   };
 
   declarationAccepted?: boolean;
+
+  // Incharge Admission Verification Fields
+  verificationRemarks?: string;
+  verifiedBy?: string;
+  verifiedDate?: string;
+  verifiedDocuments?: {
+    marksCertificate?: boolean;
+    aadhaarProof?: boolean;
+    categoryCertificate?: boolean;
+    characterCertificate?: boolean;
+    photoMatched?: boolean;
+  };
 }
 
 export type ActiveTab = 
