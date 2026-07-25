@@ -939,7 +939,7 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
           )}
 
           {/* Modal Footer Controls */}
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-between gap-3 shrink-0">
+          <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
             <button
               type="button"
               onClick={onClose}
@@ -948,14 +948,61 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
               Cancel
             </button>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-lg flex items-center gap-2 transition disabled:opacity-50 cursor-pointer"
-            >
-              <Save className="w-4 h-4" />
-              {saving ? 'Saving Changes...' : 'Save & Verify Candidate Record'}
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const today = new Date().toISOString().split('T')[0];
+                  const roll = formData.assignedRollNumber || `2026-${Math.floor(100 + Math.random() * 900)}`;
+                  const enr = formData.enrolmentNumber || `JKB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+                  const adm = formData.admNo || `BHSS-${Math.floor(1000 + Math.random() * 9000)}`;
+                  setFormData((prev) => ({
+                    ...prev,
+                    status: 'Approved',
+                    assignedRollNumber: roll,
+                    enrolmentNumber: enr,
+                    admNo: adm,
+                    verifiedBy: prev.verifiedBy || 'Incharge Admission Cell',
+                    verifiedDate: prev.verifiedDate || today,
+                    verificationRemarks: prev.verificationRemarks || 'Physically verified & approved by Admission Incharge.',
+                  }));
+                }}
+                className="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow flex items-center gap-1.5 transition cursor-pointer"
+                title="Set Status to Approved and assign Roll Number"
+              >
+                Approve Application
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const reason = window.prompt('Enter rejection reason for this student:', 'Incomplete documents / Ineligible criteria');
+                  if (reason !== null) {
+                    const today = new Date().toISOString().split('T')[0];
+                    setFormData((prev) => ({
+                      ...prev,
+                      status: 'Rejected',
+                      verifiedBy: prev.verifiedBy || 'Incharge Admission Cell',
+                      verifiedDate: prev.verifiedDate || today,
+                      verificationRemarks: `REJECTED: ${reason || 'Incomplete criteria'}`,
+                    }));
+                  }
+                }}
+                className="px-3.5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow flex items-center gap-1.5 transition cursor-pointer"
+                title="Set Status to Rejected"
+              >
+                Reject Application
+              </button>
+
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-6 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-black text-xs shadow-lg flex items-center gap-2 transition disabled:opacity-50 cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                {saving ? 'Saving Changes...' : 'Save & Update Record'}
+              </button>
+            </div>
           </div>
 
         </form>

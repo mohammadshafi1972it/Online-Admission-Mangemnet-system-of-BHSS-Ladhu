@@ -4,6 +4,7 @@ import { calculateGradeAndPercentage } from '../utils/grade';
 import { updateCandidateRecord, deleteCandidateRecord, clearAllCandidateRecords } from '../utils/api';
 import { downloadExcelDatabase } from '../utils/exportExcel';
 import { EditCandidateModal } from './EditCandidateModal';
+import { ViewApplicantDataModal } from './ViewApplicantDataModal';
 import { 
   FileSpreadsheet, 
   Search, 
@@ -50,6 +51,7 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
+  const [viewingCandidate, setViewingCandidate] = useState<Candidate | null>(null);
 
   // Counts for Verification Tabs
   const totalCount = candidates.length;
@@ -124,6 +126,27 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
       onRefresh();
     } catch (err) {
       alert('Failed to verify and approve candidate.');
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleQuickReject = async (candidate: Candidate) => {
+    const reason = window.prompt(`Enter rejection reason for ${candidate.fullName}:`, 'Criteria not fulfilled / Incomplete documents');
+    if (reason === null) return;
+
+    setLoadingId(candidate.id);
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      await updateCandidateRecord(candidate.id, {
+        status: 'Rejected',
+        verifiedBy: 'Incharge Admission Cell',
+        verifiedDate: today,
+        verificationRemarks: `REJECTED: ${reason || 'Incomplete criteria / documents'}`,
+      });
+      onRefresh();
+    } catch (err) {
+      alert('Failed to reject candidate.');
     } finally {
       setLoadingId(null);
     }
@@ -563,8 +586,8 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
 
                       {/* Verification & Status */}
                       <td className="py-3.5 px-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span
                               className={`px-2.5 py-1 rounded-full font-bold text-[11px] uppercase ${
                                 candidate.status === 'Admitted'
@@ -579,15 +602,27 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
                               {candidate.status}
                             </span>
 
-                            {candidate.status === 'Pending' && (
+                            {candidate.status !== 'Approved' && candidate.status !== 'Admitted' && (
                               <button
                                 onClick={() => handleQuickVerifyAndApprove(candidate)}
                                 disabled={loadingId === candidate.id}
-                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] transition shadow-sm flex items-center gap-1 cursor-pointer"
-                                title="One-Click Verify & Approve Student Record"
+                                className="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-bold text-[10px] transition shadow-sm flex items-center gap-1 cursor-pointer"
+                                title="Approve Student Record & Assign Roll Number"
                               >
-                                <UserCheck className="w-3 h-3" />
-                                Verify
+                                <CheckCircle2 className="w-3 h-3 text-emerald-200" />
+                                Approve
+                              </button>
+                            )}
+
+                            {candidate.status !== 'Rejected' && (
+                              <button
+                                onClick={() => handleQuickReject(candidate)}
+                                disabled={loadingId === candidate.id}
+                                className="px-2 py-0.5 bg-rose-600 hover:bg-rose-700 text-white rounded font-bold text-[10px] transition shadow-sm flex items-center gap-1 cursor-pointer"
+                                title="Reject Application with reason"
+                              >
+                                <XCircle className="w-3 h-3 text-rose-200" />
+                                Reject
                               </button>
                             )}
                           </div>
@@ -619,14 +654,23 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
 
                       {/* Quick Document Generator Buttons & Edit */}
                       <td className="py-3.5 px-4 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
+                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                          <button
+                            onClick={() => setViewingCandidate(candidate)}
+                            className="px-2.5 py-1 rounded-lg bg-blue-900 hover:bg-blue-950 text-white font-extrabold text-[11px] shadow-sm flex items-center gap-1 transition border border-blue-800 cursor-pointer"
+                            title="View Full Submitted Application Details"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-blue-300" />
+                            View Data
+                          </button>
+
                           <button
                             onClick={() => setEditingCandidate(candidate)}
                             className="px-2.5 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-[11px] shadow-sm flex items-center gap-1 transition border border-emerald-700 cursor-pointer"
                             title="View/Modify Submitted Data & Official Verification"
                           >
                             <Edit className="w-3.5 h-3.5" />
-                            View/Edit
+                            Edit
                           </button>
 
                           <button
@@ -741,6 +785,18 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
           </div>
         </div>
       )}
+
+      {/* VIEW APPLICANT SUBMITTED DATA MODAL */}
+      <ViewApplicantDataModal
+        candidate={viewingCandidate}
+        isOpen={!!viewingCandidate}
+        onClose={() => setViewingCandidate(null)}
+        onEdit={(cand) => {
+          setViewingCandidate(null);
+          setEditingCandidate(cand);
+        }}
+        onRefresh={onRefresh}
+      />
 
       {/* EDIT CANDIDATE MODAL FOR INCHARGE VERIFICATION */}
       <EditCandidateModal

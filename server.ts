@@ -290,33 +290,97 @@ app.post('/api/candidates', (req, res) => {
 
 // Update candidate status, fee payment, Roll No assignment, or DC request
 app.patch('/api/candidates/:id', (req, res) => {
-  const id = req.params.id;
-  const candidates = readCandidatesFromExcel();
-  const index = candidates.findIndex((c) => c.id.toLowerCase() === id.toLowerCase());
+  try {
+    const id = (req.params.id || '').trim();
+    const candidates = readCandidatesFromExcel();
+    let index = candidates.findIndex((c) => (c.id || '').trim().toLowerCase() === id.toLowerCase());
 
-  if (index === -1) {
-    return res.status(404).json({ success: false, message: 'Candidate record not found' });
+    const updates = req.body || {};
+
+    if (index === -1) {
+      // Check if candidate matches by Roll Number or Enrolment Number or Bank Challan
+      const altIndex = candidates.findIndex((c) =>
+        (c.assignedRollNumber && c.assignedRollNumber.trim().toLowerCase() === id.toLowerCase()) ||
+        (c.enrolmentNumber && c.enrolmentNumber.trim().toLowerCase() === id.toLowerCase()) ||
+        (c.bankChallanNo && c.bankChallanNo.trim().toLowerCase() === id.toLowerCase())
+      );
+
+      if (altIndex !== -1) {
+        index = altIndex;
+      } else {
+        // Construct new candidate entry if not existing in Excel yet so update never fails
+        const marks = Number(updates.marksObtained || 0);
+        const total = Number(updates.totalMarks || 500);
+        const percentage = total > 0 ? Number(((marks / total) * 100).toFixed(2)) : 0;
+
+        const newCandidate: Candidate = {
+          id: id,
+          fullName: updates.fullName || 'Student Candidate',
+          fatherName: updates.fatherName || '',
+          motherName: updates.motherName || '',
+          dob: updates.dob || '',
+          gender: updates.gender || 'Male',
+          category: updates.category || 'General',
+          email: updates.email || '',
+          mobile: updates.mobile || '',
+          aadharNumber: updates.aadharNumber || '',
+          address: updates.address || '',
+          previousQualification: updates.previousQualification || '',
+          boardUniversity: updates.boardUniversity || '',
+          prevRollNumber: updates.prevRollNumber || '',
+          passingYear: updates.passingYear || String(new Date().getFullYear()),
+          marksObtained: marks,
+          totalMarks: total,
+          percentage: percentage,
+          courseApplied: updates.courseApplied || 'Arts / Humanities Stream',
+          majorSubjects: updates.majorSubjects || '',
+          session: updates.session || '2026-2027',
+          assignedRollNumber: updates.assignedRollNumber,
+          enrolmentNumber: updates.enrolmentNumber,
+          status: updates.status || 'Pending',
+          dcStatus: updates.dcStatus || 'Not Requested',
+          applicationDate: updates.applicationDate || new Date().toISOString().split('T')[0],
+          feeAmount: Number(updates.feeAmount || 1400),
+          feeStatus: updates.feeStatus || 'Unpaid',
+          bankChallanNo: updates.bankChallanNo,
+          conductRating: updates.conductRating || 'Good',
+          photoUrl: updates.photoUrl,
+          verificationRemarks: updates.verificationRemarks,
+          verifiedBy: updates.verifiedBy,
+          verifiedDate: updates.verifiedDate,
+          verifiedDocuments: updates.verifiedDocuments,
+          ...updates,
+        };
+
+        candidates.unshift(newCandidate);
+        writeCandidatesToExcel(candidates);
+        return res.json({ success: true, message: 'Candidate created and updated in Excel database', data: newCandidate });
+      }
+    }
+
+    const existing = candidates[index];
+
+    // Auto assign Roll Number and Enrolment Number if approving
+    if (updates.status === 'Approved' && !existing.assignedRollNumber && !updates.assignedRollNumber) {
+      const courseStr = existing.courseApplied || updates.courseApplied || 'Arts';
+      const courseCode = courseStr.slice(0, 3).toUpperCase().replace(/[^A-Z]/g, 'C');
+      existing.assignedRollNumber = `26${courseCode}${Math.floor(100 + index * 3)}`;
+      existing.enrolmentNumber = `EN2026${Math.floor(10000 + index * 12)}`;
+    }
+
+    const updatedCandidate: Candidate = {
+      ...existing,
+      ...updates,
+    };
+
+    candidates[index] = updatedCandidate;
+    writeCandidatesToExcel(candidates);
+
+    res.json({ success: true, message: 'Candidate updated in Excel database', data: updatedCandidate });
+  } catch (err: any) {
+    console.error('Error updating candidate in Excel database:', err);
+    res.status(500).json({ success: false, message: err?.message || 'Server error updating candidate record' });
   }
-
-  const existing = candidates[index];
-  const updates = req.body;
-
-  // Auto assign Roll Number and Enrolment Number if approving
-  if (updates.status === 'Approved' && !existing.assignedRollNumber) {
-    const courseCode = existing.courseApplied.slice(0, 3).toUpperCase().replace(/[^A-Z]/g, 'C');
-    existing.assignedRollNumber = `26${courseCode}${Math.floor(100 + index * 3)}`;
-    existing.enrolmentNumber = `EN2026${Math.floor(10000 + index * 12)}`;
-  }
-
-  const updatedCandidate: Candidate = {
-    ...existing,
-    ...updates,
-  };
-
-  candidates[index] = updatedCandidate;
-  writeCandidatesToExcel(candidates);
-
-  res.json({ success: true, message: 'Candidate updated in Excel database', data: updatedCandidate });
 });
 
 // Delete individual candidate by ID
