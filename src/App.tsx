@@ -4,7 +4,6 @@ import { fetchCandidates } from './utils/api';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { ApplyAdmission } from './components/ApplyAdmission';
-import { ApplyDC } from './components/ApplyDC';
 import { CandidatesList } from './components/CandidatesList';
 import { DocumentGenerator } from './components/DocumentGenerator';
 import { QRScannerView } from './components/QRScannerView';
@@ -149,17 +148,6 @@ export default function App() {
                     onOpenDocuments={handleOpenDocuments}
                     onOpenQR={handleOpenQR}
                     onShowStudentQR={() => setIsStudentQRModalOpen(true)}
-                  />
-                )}
-
-                {activeTab === 'apply-dc' && (
-                  <ApplyDC
-                    onSuccessDC={(updatedCandidate) => {
-                      loadCandidatesData();
-                      setSelectedCandidate(updatedCandidate);
-                    }}
-                    onOpenDocuments={handleOpenDocuments}
-                    onTriggerQRScan={() => setActiveTab('qr-scanner')}
                   />
                 )}
 

@@ -198,17 +198,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Apply Admission
               </button>
 
-              <button
-                onClick={() => setActiveTab('apply-dc')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
-                  activeTab === 'apply-dc'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <FileCheck className="w-4 h-4 text-amber-400" />
-                Apply DC / Transfer
-              </button>
 
               <button
                 onClick={() => setActiveTab('candidates-list')}

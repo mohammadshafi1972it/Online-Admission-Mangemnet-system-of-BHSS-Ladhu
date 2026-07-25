@@ -78,14 +78,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
               Apply Online for Admission
             </button>
 
-            <button
-              onClick={() => setActiveTab('apply-dc')}
-              className="px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm transition shadow-lg flex items-center gap-2 cursor-pointer"
-            >
-              <FileCheck className="w-4 h-4" />
-              Apply DC / Transfer
-            </button>
-
             {onShowStudentQR && (
               <button
                 onClick={onShowStudentQR}

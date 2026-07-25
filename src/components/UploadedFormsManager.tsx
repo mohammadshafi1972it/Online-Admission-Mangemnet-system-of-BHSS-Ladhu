@@ -705,13 +705,13 @@ export const UploadedFormsManager: React.FC<UploadedFormsManagerProps> = ({
                 </label>
               </div>
 
-              {/* Submit / Print Block */}
+              {/* Submit / Save Block */}
               <div className="pt-4 border-t border-slate-200">
                 {!declarationChecked ? (
                   <div className="bg-amber-50 border border-amber-300 rounded-xl p-3 flex items-center justify-between gap-3 text-amber-900 text-xs font-semibold">
                     <div className="flex items-center gap-2">
                       <span className="text-base">⚠️</span>
-                      <span>Check the <strong>Declaration Box</strong> above to enable saving in PDF & A4 print format.</span>
+                      <span>Check the <strong>Declaration Box</strong> above to enable form submission.</span>
                     </div>
                     <span className="px-2.5 py-1 bg-amber-200 text-amber-900 font-bold rounded text-[10px] uppercase shrink-0">
                       Required
@@ -720,23 +720,23 @@ export const UploadedFormsManager: React.FC<UploadedFormsManagerProps> = ({
                 ) : (
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-xs text-slate-500 font-medium">
-                      Saves in PDF & A4 printable format to <code className="text-emerald-700 font-mono font-bold">/data/candidates.xlsx</code>
+                      Submits form and synchronizes record to <code className="text-emerald-700 font-mono font-bold">/data/candidates.xlsx</code>
                     </span>
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-md flex items-center gap-2 disabled:opacity-50"
+                      className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-md flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                     >
                       {loading ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Processing & Saving...
+                          Submitting Form...
                         </>
                       ) : (
                         <>
-                          <Printer className="w-4 h-4" />
-                          Save Application in PDF / Print in A4
+                          <FileCheck className="w-4 h-4" />
+                          Submit Application Form
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}

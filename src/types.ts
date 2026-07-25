@@ -94,7 +94,6 @@ export interface Candidate {
 export type ActiveTab = 
   | 'dashboard'
   | 'apply-admission'
-  | 'apply-dc'
   | 'candidates-list'
   | 'qr-scanner'
   | 'generate-documents'
