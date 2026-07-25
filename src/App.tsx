@@ -43,8 +43,8 @@ export default function App() {
     }
   }, [userRole, activeTab]);
 
-  const loadCandidatesData = async () => {
-    setLoading(true);
+  const loadCandidatesData = async (showSpinner = false) => {
+    if (showSpinner) setLoading(true);
     try {
       const data = await fetchCandidates();
       setCandidates(data);
@@ -54,12 +54,53 @@ export default function App() {
     } catch (err) {
       console.error('Error loading candidates:', err);
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadCandidatesData();
+    loadCandidatesData(true);
+
+    // Real-Time Server-Sent Events (SSE) listener for immediate live updates
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource('/api/events');
+      eventSource.onmessage = (event) => {
+        try {
+          const parsed = JSON.parse(event.data);
+          if (parsed.type && parsed.type !== 'connected') {
+            console.log('[Real-Time Sync] Live event received:', parsed.type);
+            loadCandidatesData(false);
+          }
+        } catch (e) {
+          console.error('SSE parse error:', e);
+        }
+      };
+      eventSource.onerror = () => {
+        // Soft fail gracefully if proxy drops connection
+      };
+    } catch (err) {
+      console.warn('EventSource setup warning:', err);
+    }
+
+    // Auto-sync polling every 4 seconds for bulletproof backup sync
+    const interval = setInterval(() => {
+      loadCandidatesData(false);
+    }, 4000);
+
+    const handleFocus = () => {
+      loadCandidatesData(false);
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const handleOpenDocuments = (candidate: Candidate, docType = 'discharge') => {
