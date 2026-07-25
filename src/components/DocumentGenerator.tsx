@@ -309,7 +309,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
         
         {/* DOCUMENT 1A: DISCHARGE CERTIFICATE - GOVT BOYS HSS LADHU FORMAT */}
         {docType === 'discharge' && dcFormat === 'ladhu' && (
-          <div className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-[210mm]">
+          <div className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-full">
             {/* Outer Green Border Frame */}
             <div className="discharge-outer-frame border-2 border-emerald-900 p-1.5 sm:p-2 relative bg-white flex flex-col justify-between">
               {/* Inner Green Border Line */}
@@ -533,24 +533,24 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
         {/* DOCUMENT 1B: DISCHARGE CERTIFICATE (STANDARD SCHOOL FORMAT) */}
         {docType === 'discharge' && dcFormat === 'standard' && (
-          <div className="printable-discharge-page w-full max-w-[210mm] min-h-[297mm] mx-auto bg-white p-6 sm:p-8 shadow-2xl rounded-sm border-2 border-amber-900/20 text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-[210mm] print:min-h-[297mm]">
+          <div className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl rounded-sm border-2 border-amber-900/20 text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-full">
             {/* Ornamental Frame Border */}
-            <div className="discharge-outer-frame border-4 border-double border-amber-900/40 p-4 sm:p-6 space-y-4 relative h-full flex flex-col justify-between">
+            <div className="discharge-outer-frame border-4 border-double border-amber-900/40 p-3 sm:p-4 relative flex flex-col justify-between">
               
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Header */}
-                <div className="text-center space-y-1 border-b-2 border-amber-900/30 pb-3">
-                  <p className="text-xs font-sans font-bold text-amber-900 uppercase tracking-widest">Govt. Boys Higher Secondary School</p>
-                  <h1 className="text-xl sm:text-2xl font-black uppercase text-amber-950 font-serif">OFFICE OF THE PRINCIPAL</h1>
-                  <p className="text-xs font-sans text-slate-600">Ladhoo Pampore, Pulwama, J&K</p>
-                  <div className="mt-1.5 inline-block bg-amber-900 text-white px-4 py-1 text-xs font-sans font-extrabold uppercase tracking-widest rounded-sm">
+                <div className="text-center space-y-0.5 border-b-2 border-amber-900/30 pb-2">
+                  <p className="text-[10px] sm:text-xs font-sans font-bold text-amber-900 uppercase tracking-widest">Govt. Boys Higher Secondary School</p>
+                  <h1 className="text-lg sm:text-xl font-black uppercase text-amber-950 font-serif">OFFICE OF THE PRINCIPAL</h1>
+                  <p className="text-[11px] font-sans text-slate-600">Ladhoo Pampore, Pulwama, J&K</p>
+                  <div className="mt-1 inline-block bg-amber-900 text-white px-3 py-0.5 text-xs font-sans font-extrabold uppercase tracking-widest rounded-sm">
                     DISCHARGE / TRANSFER CERTIFICATE
                   </div>
                 </div>
 
                 {/* Certificate Meta Bar + Photograph Box */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-dashed border-amber-900/30 pb-3">
-                  <div className="space-y-1.5 text-xs font-sans font-bold text-slate-700 flex-1">
+                <div className="flex flex-row items-center justify-between gap-3 border-b border-dashed border-amber-900/30 pb-2">
+                  <div className="space-y-1 text-xs font-sans font-bold text-slate-700 flex-1">
                     <div>Cert No: <span className="font-mono text-amber-900">DC-{activeCandidate.id.replace('ADM-', '')}-2026</span></div>
                     <div>Admission / Roll No: <span className="font-mono text-slate-900">{activeCandidate.assignedRollNumber || activeCandidate.id}</span></div>
                     <div>Date of Issue: <span className="font-mono text-slate-900">{new Date().toISOString().split('T')[0]}</span></div>
@@ -558,22 +558,22 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
                   {/* Applicant Photograph Frame (Right Side) */}
                   <div className="shrink-0 flex flex-col items-center">
-                    <div className="w-28 h-36 border-2 border-amber-900/60 rounded bg-amber-50/40 p-1 flex flex-col items-center justify-center shadow-sm text-center relative overflow-hidden bg-white">
+                    <div className="w-24 h-28 border-2 border-amber-900/60 rounded bg-amber-50/40 p-0.5 flex flex-col items-center justify-center shadow-sm text-center relative overflow-hidden bg-white">
                       {activeCandidate.photoUrl ? (
                         <img src={activeCandidate.photoUrl} alt={activeCandidate.fullName} className="w-full h-full object-cover rounded-2xs" />
                       ) : (
-                        <div className="p-2 space-y-1">
-                          <User className="w-8 h-8 text-amber-900/40 mx-auto" />
-                          <span className="block text-[8px] font-sans font-bold text-amber-900/80 uppercase tracking-tight">AFFIX PASSPORT PHOTO</span>
+                        <div className="p-1 space-y-0.5">
+                          <User className="w-6 h-6 text-amber-900/40 mx-auto" />
+                          <span className="block text-[7px] font-sans font-bold text-amber-900/80 uppercase tracking-tight">AFFIX PASSPORT PHOTO</span>
                         </div>
                       )}
                     </div>
-                    <span className="text-[10px] font-sans font-extrabold text-amber-950 uppercase mt-1 tracking-wider">APPLICANT PHOTO</span>
+                    <span className="text-[8.5px] font-sans font-extrabold text-amber-950 uppercase mt-0.5 tracking-wider">APPLICANT PHOTO</span>
                   </div>
                 </div>
 
                 {/* Body Text */}
-                <div className="text-xs sm:text-sm leading-relaxed text-slate-800 space-y-3 font-serif text-justify pt-1">
+                <div className="text-xs sm:text-sm leading-relaxed text-slate-800 space-y-2.5 font-serif text-justify pt-0.5">
                   <p>
                     This is to certify that <span className="font-extrabold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fullName}</span>, 
                     Son/Daughter of Shri <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fatherName}</span> 
@@ -597,25 +597,25 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
               </div>
 
               {/* Signatures & Security QR Code */}
-              <div className="pt-6 flex items-end justify-between border-t border-slate-300 font-sans">
+              <div className="pt-4 flex items-end justify-between border-t border-slate-300 font-sans">
                 {qrUrl && (
                   <div className="text-center">
-                    <img src={qrUrl} alt="Security QR" className="w-20 h-20 border border-slate-300 p-1 mx-auto" />
-                    <p className="text-[9px] font-mono font-bold text-slate-600 mt-0.5">Scan to Verify Record</p>
+                    <img src={qrUrl} alt="Security QR" className="w-16 h-16 border border-slate-300 p-0.5 mx-auto" />
+                    <p className="text-[8px] font-mono font-bold text-slate-600 mt-0.5">Scan to Verify Record</p>
                   </div>
                 )}
 
                 <div className="text-center space-y-1">
-                  <div className="h-8 border-b border-slate-400 w-32 mx-auto"></div>
-                  <p className="text-xs font-bold text-slate-900">Head Clerk / Academic Cell</p>
+                  <div className="h-6 border-b border-slate-400 w-28 mx-auto"></div>
+                  <p className="text-[10px] font-bold text-slate-900">Head Clerk / Academic Cell</p>
                 </div>
 
                 <div className="text-center space-y-1">
-                  <div className="h-8 border-b border-slate-800 w-40 mx-auto flex items-center justify-center">
-                    <span className="text-[11px] font-serif italic text-amber-900 font-bold opacity-80">[ Principal Seal & Signature ]</span>
+                  <div className="h-6 border-b border-slate-800 w-36 mx-auto flex items-center justify-center">
+                    <span className="text-[10px] font-serif italic text-amber-900 font-bold opacity-80">[ Principal Seal & Signature ]</span>
                   </div>
-                  <p className="text-xs font-extrabold text-slate-900 uppercase">Principal</p>
-                  <p className="text-[10px] text-slate-500">Govt. Boys HSS Ladhu, Pampore</p>
+                  <p className="text-[11px] font-extrabold text-slate-900 uppercase">Principal</p>
+                  <p className="text-[9px] text-slate-500">Govt. Boys HSS Ladhu, Pampore</p>
                 </div>
               </div>
             </div>
