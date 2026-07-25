@@ -1,0 +1,6 @@
+{
+  "name": "Boys Higher Secondary School Admission & Certificate Portal",
+  "description": "Online admission and discharge certificate application system for Boys Higher Secondary School Ladhoo Pampore with QR code generation, backend Excel database management, auto-generated certificates, library cards, and bank fee slips.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
