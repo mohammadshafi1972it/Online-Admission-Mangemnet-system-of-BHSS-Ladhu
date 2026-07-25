@@ -36,7 +36,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
   onSelectCandidate,
 }) => {
   const [docType, setDocType] = useState<DocumentType>(defaultDocType);
-  const [dcFormat, setDcFormat] = useState<'ladhu' | 'standard'>('ladhu');
+  const [dcFormat, setDcFormat] = useState<'ladhu' | 'standard'>('standard');
   const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(selectedCandidate || candidates[0] || null);
   const [qrUrl, setQrUrl] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -278,24 +278,26 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
             </span>
             <div className="flex gap-2">
               <button
-                onClick={() => setDcFormat('ladhu')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                  dcFormat === 'ladhu'
-                    ? 'bg-emerald-600 text-white shadow'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                Govt. Boys HSS Ladhu Format (Official Template)
-              </button>
-              <button
+                type="button"
                 onClick={() => setDcFormat('standard')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                   dcFormat === 'standard'
                     ? 'bg-amber-600 text-white shadow'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
               >
-                Standard School Format
+                Standard School Format (Default)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDcFormat('ladhu')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  dcFormat === 'ladhu'
+                    ? 'bg-emerald-600 text-white shadow'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                Govt. Boys HSS Ladhu Format
               </button>
             </div>
           </div>
