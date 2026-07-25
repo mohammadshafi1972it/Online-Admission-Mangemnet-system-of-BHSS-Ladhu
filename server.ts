@@ -218,34 +218,36 @@ app.get('/api/candidates/:identifier', (req, res) => {
 app.post('/api/candidates', (req, res) => {
   try {
     const candidates = readCandidatesFromExcel();
-    const body = req.body;
+    const body = req.body || {};
 
     const nextNumber = 1000 + candidates.length + 1;
-    const newId = `ADM-${new Date().getFullYear()}-${nextNumber}`;
-    const newChallan = `CHAL-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newId = body.id || `ADM-${new Date().getFullYear()}-${nextNumber}`;
+    const newChallan = body.bankChallanNo || `CHAL-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const percentage = Number(((Number(body.marksObtained || 0) / Number(body.totalMarks || 500)) * 100).toFixed(2));
+    const marks = Number(body.marksObtained || 0);
+    const total = Number(body.totalMarks || 500);
+    const percentage = total > 0 ? Number(((marks / total) * 100).toFixed(2)) : 0;
 
     const newCandidate: Candidate = {
       id: newId,
-      fullName: body.fullName || 'Unknown',
+      fullName: body.fullName || 'Student Candidate',
       fatherName: body.fatherName || '',
       motherName: body.motherName || '',
       dob: body.dob || '',
-      gender: body.gender || 'Other',
+      gender: body.gender || 'Male',
       category: body.category || 'General',
       email: body.email || '',
-      mobile: body.mobile || '',
+      mobile: body.mobile || body.parentContactNo || '',
       aadharNumber: body.aadharNumber || '',
       address: body.address || '',
       previousQualification: body.previousQualification || '',
       boardUniversity: body.boardUniversity || '',
       prevRollNumber: body.prevRollNumber || '',
       passingYear: body.passingYear || String(new Date().getFullYear()),
-      marksObtained: Number(body.marksObtained || 0),
-      totalMarks: Number(body.totalMarks || 500),
-      percentage: percentage,
-      courseApplied: body.courseApplied || 'General Course',
+      marksObtained: marks,
+      totalMarks: total,
+      percentage: isNaN(percentage) ? 0 : percentage,
+      courseApplied: body.courseApplied || 'Arts / Humanities Stream',
       majorSubjects: body.majorSubjects || '',
       session: body.session || `${new Date().getFullYear()}-${new Date().getFullYear() + 3}`,
       assignedRollNumber: body.assignedRollNumber || undefined,
@@ -253,7 +255,7 @@ app.post('/api/candidates', (req, res) => {
       status: 'Pending',
       dcStatus: 'Not Requested',
       applicationDate: new Date().toISOString().split('T')[0],
-      feeAmount: Number(body.feeAmount || 15000),
+      feeAmount: Number(body.feeAmount || 1400),
       feeStatus: 'Unpaid',
       bankChallanNo: newChallan,
       conductRating: 'Good',
@@ -264,9 +266,9 @@ app.post('/api/candidates', (req, res) => {
     writeCandidatesToExcel(candidates);
 
     res.status(201).json({ success: true, message: 'Admission application submitted successfully!', data: newCandidate });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error submitting candidate form:', err);
-    res.status(500).json({ success: false, message: 'Failed to save application' });
+    res.status(500).json({ success: false, message: err?.message || 'Failed to save application' });
   }
 });
 
