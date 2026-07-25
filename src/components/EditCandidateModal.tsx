@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Candidate } from '../types';
 import { calculateGradeAndPercentage } from '../utils/grade';
-import { updateCandidateRecord } from '../utils/api';
+import { updateCandidateRecord, deleteCandidateRecord } from '../utils/api';
 import { triggerPrint } from '../utils/print';
+import { compressPhotoUnder50KB, getPhotoSizeKB } from '../utils/imageUtils';
 import { 
   X, 
   Save, 
@@ -20,7 +21,8 @@ import {
   Printer,
   CheckSquare,
   Square,
-  ClipboardCheck
+  ClipboardCheck,
+  Trash2
 } from 'lucide-react';
 
 interface EditCandidateModalProps {
@@ -75,14 +77,16 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
     }
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, photoUrl: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      setErrorMessage('');
+      try {
+        const compressed = await compressPhotoUnder50KB(file);
+        setFormData((prev) => ({ ...prev, photoUrl: compressed.dataUrl }));
+      } catch (err: any) {
+        setErrorMessage(err.message || 'Selected photo could not be compressed under 50KB limit.');
+      }
     }
   };
 
@@ -152,6 +156,22 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
       }, 900);
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to update student record.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteRecord = async () => {
+    if (!candidate) return;
+    if (!window.confirm(`Are you sure you want to permanently delete student record for "${candidate.fullName}" (${candidate.id})?`)) return;
+
+    setSaving(true);
+    try {
+      await deleteCandidateRecord(candidate.id);
+      onSaved({ ...candidate, status: 'Deleted' });
+      onClose();
+    } catch (err) {
+      alert('Failed to delete student record');
     } finally {
       setSaving(false);
     }
@@ -906,32 +926,41 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
           {activeTab === 'photo' && (
             <div className="space-y-4 text-center">
               <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50">
-                <div className="w-32 h-40 border-2 border-slate-400 rounded-xl overflow-hidden bg-white shadow-md flex items-center justify-center mb-4">
-                  {formData.photoUrl ? (
-                    <img src={formData.photoUrl} alt="Student" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="text-center p-2 text-slate-400 font-bold text-xs">
-                      No Photo Available
-                    </div>
+                <div className="relative">
+                  <div className="w-32 h-40 border-2 border-slate-800 rounded-xl overflow-hidden bg-white shadow-md flex items-center justify-center mb-2">
+                    {formData.photoUrl ? (
+                      <img src={formData.photoUrl} alt="Student" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-center p-2 text-slate-400 font-bold text-xs">
+                        No Photo Available
+                      </div>
+                    )}
+                  </div>
+                  {formData.photoUrl && (
+                    <span className="inline-block bg-slate-900 text-emerald-400 font-mono font-bold text-[10px] px-2 py-0.5 rounded-md border border-emerald-500/30 shadow mb-3">
+                      Size: {getPhotoSizeKB(formData.photoUrl)} (&lt;50KB)
+                    </span>
                   )}
                 </div>
 
-                <label className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow cursor-pointer transition flex items-center gap-2">
+                <label className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow cursor-pointer transition flex items-center gap-2 mt-1">
                   <ImageIcon className="w-4 h-4" />
-                  Upload / Replace Photograph
+                  Upload / Replace Photograph (&lt;50KB)
                   <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                 </label>
-                <p className="text-[11px] text-slate-500 mt-2">Accepted formats: JPG, PNG, WEBP. Auto-compresses for official certificate prints.</p>
+                <p className="text-[11px] text-slate-600 mt-2 font-medium">
+                  Photos are auto-compressed strictly under <strong>50KB</strong> and stored on backend disk storage (<code>/uploads/photos/</code>).
+                </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 text-left">Or Enter Photo Image URL directly:</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1 text-left">Or Enter Photo Image URL / Storage Path directly:</label>
                 <input
                   type="text"
                   name="photoUrl"
                   value={formData.photoUrl || ''}
                   onChange={handleChange}
-                  placeholder="https://..."
+                  placeholder="/uploads/photos/... or https://..."
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
@@ -940,13 +969,26 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
 
           {/* Modal Footer Controls */}
           <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition"
-            >
-              Cancel
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDeleteRecord}
+                disabled={saving}
+                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow flex items-center gap-1.5 transition cursor-pointer active:scale-95 disabled:opacity-50"
+                title="Permanently Delete Candidate Record"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Record
+              </button>
+            </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <button

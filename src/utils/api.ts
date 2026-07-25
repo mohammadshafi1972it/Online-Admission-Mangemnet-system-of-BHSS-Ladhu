@@ -28,8 +28,8 @@ export async function fetchCandidates(search = '', course = '', status = ''): Pr
     const json = await res.json();
     const serverCandidates: Candidate[] = json.data || [];
     
-    // Sync candidates to local storage
-    if (serverCandidates.length > 0) {
+    // Sync candidates to local storage if fetching full list
+    if (!search && !course && !status) {
       localStorage.setItem('candidates_fallback_db', JSON.stringify(serverCandidates));
     }
     return serverCandidates;
@@ -331,4 +331,20 @@ export async function parseFormImage(imageBase64: string): Promise<Record<string
     console.warn('Form image parsing error, returning empty extracted object', err);
     return {};
   }
+}
+
+export async function uploadPhotoToBackend(photoBase64: string, candidateId?: string): Promise<string> {
+  const res = await fetch('/api/upload-photo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ photoBase64, candidateId }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to upload photo to backend storage server');
+  }
+
+  const json = await res.json();
+  return json.photoUrl;
 }

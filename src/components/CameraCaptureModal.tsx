@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Camera, RefreshCw, Check, X, AlertCircle, FlipHorizontal, Image as ImageIcon } from 'lucide-react';
+import { compressPhotoUnder50KB, getPhotoSizeKB } from '../utils/imageUtils';
 
 interface CameraCaptureModalProps {
   isOpen: boolean;
@@ -76,15 +77,15 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     }
   };
 
-  const handleCapture = () => {
+  const handleCapture = async () => {
     if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
     const size = Math.min(video.videoWidth || 400, video.videoHeight || 400);
-    canvas.width = 400;
-    canvas.height = 400;
+    canvas.width = 320;
+    canvas.height = 380;
 
     const ctx = canvas.getContext('2d');
     if (ctx) {
@@ -98,10 +99,16 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         ctx.scale(-1, 1);
       }
 
-      ctx.drawImage(video, startX, startY, size, size, 0, 0, 400, 400);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      setCapturedImage(dataUrl);
+      ctx.drawImage(video, startX, startY, size, size, 0, 0, 320, 380);
+      const rawDataUrl = canvas.toDataURL('image/jpeg', 0.8);
       stopCamera();
+
+      try {
+        const compressed = await compressPhotoUnder50KB(rawDataUrl);
+        setCapturedImage(compressed.dataUrl);
+      } catch (err: any) {
+        setCapturedImage(rawDataUrl);
+      }
     }
   };
 
@@ -170,6 +177,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 />
                 <span className="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                   Captured
+                </span>
+                <span className="absolute bottom-2 left-2 bg-slate-900/90 text-emerald-400 border border-emerald-500/40 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow">
+                  Size: {getPhotoSizeKB(capturedImage)} (&lt;50KB)
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-3 text-center">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Candidate } from '../types';
 import { calculateGradeAndPercentage } from '../utils/grade';
 import { triggerPrint } from '../utils/print';
-import { updateCandidateRecord } from '../utils/api';
+import { updateCandidateRecord, deleteCandidateRecord } from '../utils/api';
 import { 
   X, 
   CheckCircle2, 
@@ -25,7 +25,8 @@ import {
   Hash,
   BookOpen,
   ClipboardCheck,
-  AlertCircle
+  AlertCircle,
+  Trash2
 } from 'lucide-react';
 
 interface ViewApplicantDataModalProps {
@@ -146,6 +147,21 @@ export const ViewApplicantDataModal: React.FC<ViewApplicantDataModalProps> = ({
       onClose();
     } catch (err) {
       alert('Failed to reject application.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to permanently delete admission form record for "${candidate.fullName}" (${candidate.id})?`)) return;
+
+    setLoading(true);
+    try {
+      await deleteCandidateRecord(candidate.id);
+      onRefresh();
+      onClose();
+    } catch (err) {
+      alert('Failed to delete application record.');
     } finally {
       setLoading(false);
     }
@@ -499,16 +515,29 @@ export const ViewApplicantDataModal: React.FC<ViewApplicantDataModalProps> = ({
         </div>
 
         {/* FOOTER */}
-        <div className="bg-slate-100 p-4 border-t border-slate-200 flex items-center justify-between shrink-0">
+        <div className="bg-slate-100 p-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <p className="text-xs text-slate-500 font-medium">
             Submitted On: <strong className="text-slate-700 font-mono">{candidate.applicationDate}</strong>
           </p>
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-xl shadow cursor-pointer transition"
-          >
-            Close Viewer
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={loading}
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow cursor-pointer transition flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete Record
+            </button>
+
+            <button
+              onClick={onClose}
+              className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-xl shadow cursor-pointer transition"
+            >
+              Close Viewer
+            </button>
+          </div>
         </div>
       </div>
     </div>

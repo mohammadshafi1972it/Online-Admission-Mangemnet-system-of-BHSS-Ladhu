@@ -22,6 +22,46 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
+// Photo Uploads Backend Storage Setup
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads', 'photos');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+// Serve uploaded photos statically
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+/**
+ * Saves a base64 photo data string to backend disk storage inside /uploads/photos.
+ * Enforces mandatory photo size <= 50KB (51,200 bytes).
+ */
+function saveBase64PhotoToDisk(photoUrl: string | undefined, candidateId: string): string | undefined {
+  if (!photoUrl || !photoUrl.startsWith('data:image/')) {
+    return photoUrl; // Already a saved path or URL
+  }
+  try {
+    const base64Data = photoUrl.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+    const sizeInBytes = buffer.length;
+
+    // Requirement: Size of photo upload must be less than 50KB
+    if (sizeInBytes > 50 * 1024) {
+      throw new Error(`Photo size (${(sizeInBytes / 1024).toFixed(1)}KB) exceeds the maximum allowed limit of 50KB.`);
+    }
+
+    const ext = photoUrl.includes('image/png') ? 'png' : 'jpg';
+    const cleanId = (candidateId || 'student').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `photo-${cleanId}-${Date.now()}.${ext}`;
+    const filePath = path.join(UPLOADS_DIR, filename);
+
+    fs.writeFileSync(filePath, buffer);
+    return `/uploads/photos/${filename}`;
+  } catch (err: any) {
+    console.error('Error saving photo to disk in backend:', err);
+    throw err;
+  }
+}
+
 export interface Candidate {
   id: string; // e.g. ADM-2026-1001
   fullName: string;
@@ -245,6 +285,8 @@ app.post('/api/candidates', (req, res) => {
     const total = Number(body.totalMarks || 500);
     const percentage = total > 0 ? Number(((marks / total) * 100).toFixed(2)) : 0;
 
+    const storedPhotoUrl = body.photoUrl ? saveBase64PhotoToDisk(body.photoUrl, newId) : undefined;
+
     const newCandidate: Candidate = {
       id: newId,
       fullName: body.fullName || 'Student Candidate',
@@ -276,7 +318,7 @@ app.post('/api/candidates', (req, res) => {
       feeStatus: 'Unpaid',
       bankChallanNo: newChallan,
       conductRating: 'Good',
-      photoUrl: body.photoUrl || undefined,
+      photoUrl: storedPhotoUrl,
     };
 
     candidates.unshift(newCandidate);
@@ -289,6 +331,26 @@ app.post('/api/candidates', (req, res) => {
   }
 });
 
+// Dedicated photo upload route for backend disk storage
+app.post('/api/upload-photo', (req, res) => {
+  try {
+    const { photoBase64, candidateId } = req.body || {};
+    if (!photoBase64) {
+      return res.status(400).json({ success: false, message: 'No photo image provided' });
+    }
+
+    const photoUrl = saveBase64PhotoToDisk(photoBase64, candidateId || 'student');
+    res.json({
+      success: true,
+      message: 'Photo uploaded and saved to backend disk storage successfully!',
+      photoUrl,
+    });
+  } catch (err: any) {
+    console.error('Photo upload failed:', err);
+    res.status(400).json({ success: false, message: err?.message || 'Failed to process photo upload' });
+  }
+});
+
 // Update candidate status, fee payment, Roll No assignment, or DC request
 app.patch('/api/candidates/:id', (req, res) => {
   try {
@@ -297,6 +359,10 @@ app.patch('/api/candidates/:id', (req, res) => {
     let index = candidates.findIndex((c) => (c.id || '').trim().toLowerCase() === id.toLowerCase());
 
     const updates = req.body || {};
+
+    if (updates.photoUrl && updates.photoUrl.startsWith('data:image/')) {
+      updates.photoUrl = saveBase64PhotoToDisk(updates.photoUrl, id);
+    }
 
     if (index === -1) {
       // Check if candidate matches by Roll Number or Enrolment Number or Bank Challan

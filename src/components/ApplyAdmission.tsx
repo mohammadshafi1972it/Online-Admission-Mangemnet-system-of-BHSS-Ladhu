@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Candidate } from '../types';
-import { submitAdmissionForm } from '../utils/api';
+import { submitAdmissionForm, deleteCandidateRecord } from '../utils/api';
 import { calculateCourseFees } from '../utils/feeCalculator';
 import { generateQRCodeDataUrl, buildCandidateQRPayload } from '../utils/qr';
 import { calculateGradeAndPercentage } from '../utils/grade';
 import { triggerPrint } from '../utils/print';
+import { compressPhotoUnder50KB, getPhotoSizeKB } from '../utils/imageUtils';
 import { CameraCaptureModal } from './CameraCaptureModal';
 import { PrintableAdmissionForm } from './PrintableAdmissionForm';
 import { PrintableBankSlipA4 } from './PrintableBankSlipA4';
@@ -27,7 +28,9 @@ import {
   Award,
   TrendingUp,
   Percent,
-  X
+  X,
+  Trash2,
+  RotateCcw
 } from 'lucide-react';
 
 interface ApplyAdmissionProps {
@@ -81,20 +84,16 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
   const [activePreviewDoc, setActivePreviewDoc] = useState<'form' | 'bank-slip' | 'library' | null>(null);
   const photoFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handlePhotoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setErrorMsg('Photo file size should be less than 5MB');
-        return;
+      setErrorMsg('');
+      try {
+        const compressed = await compressPhotoUnder50KB(file);
+        setFormData((prev) => ({ ...prev, photoUrl: compressed.dataUrl }));
+      } catch (err: any) {
+        setErrorMsg(err.message || 'Selected photo could not be compressed under 50KB limit.');
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setFormData((prev) => ({ ...prev, photoUrl: reader.result as string }));
-        }
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -482,51 +481,76 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
 
             {/* Action buttons */}
             <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-200">
-              <button
-                type="button"
-                onClick={() => {
-                  setSubmittedCandidate(null);
-                  setFormData({
-                    admNo: 'ADM-2026-103',
-                    classWishToJoin: '11th Class',
-                    session: '2026-2027',
-                    boardRegNo: '',
-                    aadharNumber: '',
-                    bankAccountNo: '',
-                    fullName: '',
-                    fatherName: '',
-                    motherName: '',
-                    address: '',
-                    fatherOccupation: 'Government Service',
-                    bloodGroup: 'O+',
-                    height: "5'6\"",
-                    penNumber: 'PEN-2026-8902',
-                    rationCardDetail: 'APL',
-                    socialCategory: 'General',
-                    parentContactNo: '',
-                    mobile: '',
-                    email: '',
-                    dob: '2010-05-15',
-                    gender: 'Male',
-                    category: 'General',
-                    hasDisability: 'NO',
-                    disabilityType: '',
-                    previousQualification: 'Matriculation (10th Class Passed)',
-                    boardUniversity: 'JKBOSE (J&K Board of School Education)',
-                    prevRollNumber: '',
-                    passingYear: '2025',
-                    marksObtained: '',
-                    totalMarks: '500',
-                    courseApplied: 'Science Stream (Medical: Physics, Chemistry, Biology)',
-                    majorSubjects: 'Physics, Chemistry, Biology, General English',
-                    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-                  });
-                }}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-300 bg-white"
-              >
-                <UserPlus className="w-4 h-4" />
-                Submit Another Application
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (window.confirm(`Are you sure you want to permanently delete submitted admission form for "${submittedCandidate.fullName}" (${submittedCandidate.id})?`)) {
+                      setLoading(true);
+                      try {
+                        await deleteCandidateRecord(submittedCandidate.id);
+                        alert('Admission form record deleted successfully.');
+                        setSubmittedCandidate(null);
+                        onSuccessSubmitted({ id: submittedCandidate.id } as Candidate);
+                      } catch (err) {
+                        alert('Failed to delete application record.');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }
+                  }}
+                  className="text-xs font-bold text-rose-700 hover:text-rose-900 transition flex items-center gap-1.5 px-3 py-2 rounded-lg border border-rose-300 bg-rose-50 hover:bg-rose-100 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4 text-rose-600" />
+                  Delete Application
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubmittedCandidate(null);
+                    setFormData({
+                      admNo: 'ADM-2026-103',
+                      classWishToJoin: '11th Class',
+                      session: '2026-2027',
+                      boardRegNo: '',
+                      aadharNumber: '',
+                      bankAccountNo: '',
+                      fullName: '',
+                      fatherName: '',
+                      motherName: '',
+                      address: '',
+                      fatherOccupation: 'Government Service',
+                      bloodGroup: 'O+',
+                      height: "5'6\"",
+                      penNumber: 'PEN-2026-8902',
+                      rationCardDetail: 'APL',
+                      socialCategory: 'General',
+                      parentContactNo: '',
+                      mobile: '',
+                      email: '',
+                      dob: '2010-05-15',
+                      gender: 'Male',
+                      category: 'General',
+                      hasDisability: 'NO',
+                      disabilityType: '',
+                      previousQualification: 'Matriculation (10th Class Passed)',
+                      boardUniversity: 'JKBOSE (J&K Board of School Education)',
+                      prevRollNumber: '',
+                      passingYear: '2025',
+                      marksObtained: '',
+                      totalMarks: '500',
+                      courseApplied: 'Science Stream (Medical: Physics, Chemistry, Biology)',
+                      majorSubjects: 'Physics, Chemistry, Biology, General English',
+                      photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+                    });
+                  }}
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-300 bg-white cursor-pointer"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Submit Another Application
+                </button>
+              </div>
 
               <button
                 type="button"
@@ -662,19 +686,29 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                   <span className="text-xs font-extrabold uppercase text-slate-900 tracking-wide">
                     Candidate Passport Photo <span className="text-rose-500">*</span>
                   </span>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                    Camera Capture & File Upload Enabled
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-300">
+                    Mandatory &lt;50KB Size Limit
+                  </span>
+                  <span className="text-[10px] bg-blue-100 text-blue-800 font-extrabold px-2.5 py-0.5 rounded-full border border-blue-300">
+                    Saved to Backend Server Storage
                   </span>
                 </div>
                 <p className="text-xs text-slate-600">
-                  Snap live photo using your camera, or upload a passport photo file from your device.
+                  Snap live photo with camera or upload file. Photos are auto-compressed under 50KB and stored directly on the backend server.
                 </p>
+
+                {formData.photoUrl && (
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] font-mono font-bold text-emerald-800">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Current Photo Size: {getPhotoSizeKB(formData.photoUrl)} (Validated &lt;50KB)
+                  </div>
+                )}
 
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pt-1">
                   <button
                     type="button"
                     onClick={() => setIsCameraModalOpen(true)}
-                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow flex items-center gap-1.5 active:scale-95"
+                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow flex items-center gap-1.5 active:scale-95 cursor-pointer"
                   >
                     <Camera className="w-4 h-4" />
                     Take Photo with Camera
@@ -691,10 +725,10 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                   <button
                     type="button"
                     onClick={() => photoFileInputRef.current?.click()}
-                    className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition flex items-center gap-1.5"
+                    className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <Upload className="w-4 h-4 text-slate-600" />
-                    Upload Photo File
+                    Upload Photo File (&lt;50KB)
                   </button>
                 </div>
               </div>
@@ -1655,24 +1689,73 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                   Declaration accepted. Save application as PDF or print directly in A4 format.
                 </p>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-extrabold text-sm transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Saving & Generating PDF...
-                    </>
-                  ) : (
-                    <>
-                      <Printer className="w-5 h-5" />
-                      Save Application in PDF / Print in A4
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Reset all fields in this admission form?')) {
+                        setFormData({
+                          admNo: 'ADM-2026-103',
+                          classWishToJoin: '11th Class',
+                          session: '2026-2027',
+                          boardRegNo: '',
+                          aadharNumber: '',
+                          bankAccountNo: '',
+                          fullName: '',
+                          fatherName: '',
+                          motherName: '',
+                          address: '',
+                          fatherOccupation: 'Government Service',
+                          bloodGroup: 'O+',
+                          height: "5'6\"",
+                          penNumber: '',
+                          rationCardDetail: 'APL',
+                          socialCategory: 'General',
+                          parentContactNo: '',
+                          mobile: '',
+                          email: '',
+                          dob: '2010-05-15',
+                          gender: 'Male',
+                          category: 'General',
+                          hasDisability: 'NO',
+                          disabilityType: '',
+                          previousQualification: 'Matriculation (10th Class Passed)',
+                          boardUniversity: 'JKBOSE (J&K Board of School Education)',
+                          prevRollNumber: '',
+                          passingYear: '2025',
+                          marksObtained: '',
+                          totalMarks: '500',
+                          courseApplied: 'Science Stream (Medical: Physics, Chemistry, Biology)',
+                          majorSubjects: 'Physics, Chemistry, Biology, General English',
+                          photoUrl: '',
+                        });
+                      }
+                    }}
+                    className="px-4 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset Fields
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 sm:flex-none px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-extrabold text-sm transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Saving & Generating PDF...
+                      </>
+                    ) : (
+                      <>
+                        <Printer className="w-5 h-5" />
+                        Save Application in PDF / Print in A4
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </div>
