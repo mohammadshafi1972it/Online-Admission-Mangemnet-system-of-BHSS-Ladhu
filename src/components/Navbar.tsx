@@ -118,17 +118,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>PIN Settings</span>
                 </button>
 
-                {/* Lock Session / Switch to Student View */}
+                {/* Switch to Student View */}
                 <button
                   onClick={() => {
                     setUserRole('student');
                     setActiveTab('apply-admission');
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition flex items-center gap-1.5"
-                  title="Lock session & switch preview to Student Form view"
+                  className="px-3 py-1.5 rounded-lg bg-amber-600/90 hover:bg-amber-500 text-white font-bold text-xs border border-amber-500 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  title="Switch to Student Online Admission Form view"
                 >
-                  <LogOut className="w-3.5 h-3.5 text-rose-400" />
-                  <span className="hidden sm:inline">Lock / Student View</span>
+                  <UserPlus className="w-3.5 h-3.5 text-amber-200" />
+                  <span>Student Form View</span>
                 </button>
               </>
             ) : (

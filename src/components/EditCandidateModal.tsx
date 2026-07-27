@@ -297,7 +297,7 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
             }`}
           >
             <ImageIcon className="w-4 h-4" />
-            4. Student Photo
+            4. Student Pic
           </button>
         </div>
 
@@ -945,7 +945,7 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
 
                 <label className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow cursor-pointer transition flex items-center gap-2 mt-1">
                   <ImageIcon className="w-4 h-4" />
-                  Upload / Replace Photograph (&lt;50KB)
+                  Upload Pic (&lt;50KB)
                   <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                 </label>
                 <p className="text-[11px] text-slate-600 mt-2 font-medium">

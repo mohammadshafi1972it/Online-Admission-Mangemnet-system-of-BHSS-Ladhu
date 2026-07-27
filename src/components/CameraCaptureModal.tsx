@@ -40,6 +40,12 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     setCameraError(null);
     stopCamera();
 
+    if (!navigator?.mediaDevices?.getUserMedia) {
+      setCameraError('Camera API is restricted or not supported in this mobile browser context. Please use the "Upload Pic (<50KB)" button instead.');
+      setIsStarting(false);
+      return;
+    }
+
     try {
       const constraints: MediaStreamConstraints = {
         video: {
@@ -59,7 +65,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     } catch (err: any) {
       console.error('Error accessing camera:', err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('Camera permission was denied. Please allow camera access in your browser settings.');
+        setCameraError('Camera permission was denied. Please allow camera access in browser settings or use Upload Pic.');
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
         setCameraError('No camera device found on your device.');
       } else {
@@ -152,7 +158,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         <div className="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Camera className="w-5 h-5 text-blue-400" />
-            <h3 className="font-bold text-base">Capture Passport Photograph</h3>
+            <h3 className="font-bold text-base">Capture Passport Pic</h3>
           </div>
           <button
             onClick={onClose}
@@ -250,7 +256,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 className="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                Retake Photo
+                Retake Pic
               </button>
               <button
                 type="button"
@@ -258,7 +264,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow flex items-center justify-center gap-2"
               >
                 <Check className="w-4 h-4" />
-                Use Photo
+                Use Pic
               </button>
             </>
           ) : (
@@ -278,7 +284,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 className="flex-1 py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs transition shadow flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Camera className="w-4 h-4" />
-                Capture Photograph
+                Capture Pic
               </button>
             </>
           )}

@@ -197,7 +197,7 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
                 <img src={candidate.photoUrl} alt="Candidate" className="w-full h-full object-cover" />
               ) : (
                 <div className="text-center p-2">
-                  <span className="text-[10px] font-bold uppercase text-slate-500 block">PHOTOGRAPH</span>
+                  <span className="text-[10px] font-bold uppercase text-slate-500 block">PASSPORT PIC</span>
                   <span className="text-[9px] text-slate-400 block">TO BE PASTED</span>
                 </div>
               )}
@@ -412,7 +412,7 @@ export const PrintableAdmissionForm: React.FC<PrintableAdmissionFormProps> = ({
                   <li>Aadhaar Card (Photocopy)</li>
                   <li>Ration Card (Front page Photocopy)</li>
                   <li>Bank Passbook (FrontPage Photocopy)</li>
-                  <li>3 Photographs</li>
+                  <li>3 Passport Pics</li>
                 </ol>
               </div>
 

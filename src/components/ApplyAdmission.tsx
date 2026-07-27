@@ -182,7 +182,11 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
       const url = await generateQRCodeDataUrl(qrPayload);
       setQrCodeUrl(url);
 
-      setActivePreviewDoc('form');
+      if (userRole === 'student') {
+        setActivePreviewDoc(null);
+      } else {
+        setActivePreviewDoc('form');
+      }
       onSuccessSubmitted(result);
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to submit admission application.');
@@ -394,84 +398,142 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
               </div>
             </div>
 
-            {/* Fee & Bank Slip Action Cards Section */}
-            <div className="bg-gradient-to-br from-blue-50/90 to-emerald-50/90 rounded-2xl p-5 sm:p-6 border border-blue-200/80 space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-blue-200/60 pb-3">
-                <div>
-                  <span className="text-xs font-extrabold text-blue-900 uppercase tracking-wide bg-blue-100 px-2.5 py-0.5 rounded-full">
-                    ADMISSION FEE & BANK CHALLAN DETAILS
+            {/* Student Mode Success Guidance vs Incharge Document Control Hub */}
+            {userRole === 'student' ? (
+              <div className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl p-6 border border-emerald-200/80 space-y-5 text-left">
+                <div className="flex items-center gap-3 border-b border-emerald-200/60 pb-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base text-slate-900">Application Form Successfully Received!</h3>
+                    <p className="text-xs text-slate-600">Your application data is safely saved in the Govt. BHSS Ladhoo Admission Database.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1.5">
+                    <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs flex items-center justify-center">1</span>
+                    <h4 className="font-bold text-xs text-slate-900 uppercase">Save Reference ID</h4>
+                    <p className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 p-2 rounded border border-emerald-200 text-center">
+                      {submittedCandidate.id}
+                    </p>
+                    <p className="text-[11px] text-slate-500">Keep this ID safe for all future inquiries.</p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1.5">
+                    <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-800 font-extrabold text-xs flex items-center justify-center">2</span>
+                    <h4 className="font-bold text-xs text-slate-900 uppercase">Visit Admission Cell</h4>
+                    <p className="text-xs text-slate-700 font-semibold">Govt. BHSS Ladhoo Pampore</p>
+                    <p className="text-[11px] text-slate-500">Bring original Marksheets, Aadhaar, & Passport Photos.</p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1.5">
+                    <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-800 font-extrabold text-xs flex items-center justify-center">3</span>
+                    <h4 className="font-bold text-xs text-slate-900 uppercase">Incharge Document Print</h4>
+                    <p className="text-xs text-slate-700 font-semibold">Printed by Admission Incharge</p>
+                    <p className="text-[11px] text-slate-500">Official Admission Form, 3-Copy Bank Slip, & Library Pass will be printed at school counter.</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl flex items-center gap-3 text-amber-900 text-xs">
+                  <span className="text-xl">ℹ️</span>
+                  <span>
+                    <strong>Note for Students:</strong> Printed copies of Bank Fee Slips & Admission Forms are officially issued by the School Admission Cell upon physical document verification.
                   </span>
-                  <div className="flex flex-wrap items-baseline gap-3 mt-1.5">
-                    <p className="text-2xl sm:text-3xl font-black text-blue-950">₹{submittedCandidate.feeAmount.toLocaleString('en-IN')}</p>
-                    <p className="text-xs font-bold text-slate-700">Bank Fee Challan No: <span className="font-mono text-blue-900 bg-white px-2 py-0.5 rounded border border-blue-300 font-bold">{submittedCandidate.bankChallanNo}</span></p>
-                  </div>
-                  <p className="text-xs text-slate-600 mt-1">Fee deposit slip is generated in 3-Copy A4 format (Bank Copy, Student Copy, School Copy).</p>
                 </div>
               </div>
-
-              {/* Action Cards for Generated Documents */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-                {/* Card 1: Official Admission Form */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-blue-300 transition">
-                  <div className="space-y-1 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                      <FileText className="w-5 h-5" />
+            ) : (
+              /* Fee & Bank Slip Action Cards Section for Incharge Admission Control */
+              <div className="bg-gradient-to-br from-blue-50/90 to-emerald-50/90 rounded-2xl p-5 sm:p-6 border border-blue-200/80 space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-blue-200/60 pb-3">
+                  <div>
+                    <span className="text-xs font-extrabold text-blue-900 uppercase tracking-wide bg-blue-100 px-2.5 py-0.5 rounded-full">
+                      INCHARGE ADMISSION CONTROL — FEE & PRINT DOCUMENTS
+                    </span>
+                    <div className="flex flex-wrap items-baseline gap-3 mt-1.5">
+                      <p className="text-2xl sm:text-3xl font-black text-blue-950">₹{submittedCandidate.feeAmount.toLocaleString('en-IN')}</p>
+                      <p className="text-xs font-bold text-slate-700">Bank Fee Challan No: <span className="font-mono text-blue-900 bg-white px-2 py-0.5 rounded border border-blue-300 font-bold">{submittedCandidate.bankChallanNo}</span></p>
                     </div>
-                    <h4 className="font-bold text-sm text-slate-900">1. Official Admission Form</h4>
-                    <p className="text-xs text-slate-500">Filled application record with candidate photo & QR code.</p>
+                    <p className="text-xs text-slate-600 mt-1">Fee deposit slip is generated in 3-Copy A4 format (Bank Copy, Student Copy, School Copy).</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setActivePreviewDoc('form')}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
-                  >
-                    <Printer className="w-3.5 h-3.5 text-emerald-400" />
-                    Print Admission Form
-                  </button>
+
+                  {onOpenDocuments && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenDocuments(submittedCandidate, 'bank-slip')}
+                      className="px-3.5 py-2 bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer shrink-0"
+                    >
+                      <FileText className="w-4 h-4 text-amber-300" />
+                      Open Full Document Generator
+                    </button>
+                  )}
                 </div>
 
-                {/* Card 2: 3-Copy J&K Bank Fee Slip */}
-                <div className="bg-white p-4 rounded-xl border-2 border-emerald-500/50 shadow-md flex flex-col justify-between hover:border-emerald-600 transition bg-emerald-50/20">
-                  <div className="space-y-1 mb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                        <CreditCard className="w-5 h-5" />
+                {/* Action Cards for Generated Documents */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                  {/* Card 1: Official Admission Form */}
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-blue-300 transition">
+                    <div className="space-y-1 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                        <FileText className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-extrabold uppercase bg-emerald-600 text-white px-2 py-0.5 rounded-full">3 Copies</span>
+                      <h4 className="font-bold text-sm text-slate-900">1. Official Admission Form</h4>
+                      <p className="text-xs text-slate-500">Filled application record with candidate photo & QR code.</p>
                     </div>
-                    <h4 className="font-extrabold text-sm text-slate-900">2. 3-Copy Bank Fee Slip</h4>
-                    <p className="text-xs text-slate-600">J&K Bank Fee Deposition Slip in A4 format.</p>
+                    <button
+                      type="button"
+                      onClick={() => setActivePreviewDoc('form')}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
+                    >
+                      <Printer className="w-3.5 h-3.5 text-emerald-400" />
+                      Print Admission Form
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setActivePreviewDoc('bank-slip')}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow cursor-pointer active:scale-95"
-                  >
-                    <CreditCard className="w-3.5 h-3.5 text-emerald-200" />
-                    Print 3-Copy Bank Slip
-                  </button>
-                </div>
 
-                {/* Card 3: Library Pass Form */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-indigo-300 transition">
-                  <div className="space-y-1 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                      <BookOpen className="w-5 h-5" />
+                  {/* Card 2: 3-Copy J&K Bank Fee Slip */}
+                  <div className="bg-white p-4 rounded-xl border-2 border-emerald-500/50 shadow-md flex flex-col justify-between hover:border-emerald-600 transition bg-emerald-50/20">
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                          <CreditCard className="w-5 h-5" />
+                        </div>
+                        <span className="text-[10px] font-extrabold uppercase bg-emerald-600 text-white px-2 py-0.5 rounded-full">3 Copies</span>
+                      </div>
+                      <h4 className="font-extrabold text-sm text-slate-900">2. 3-Copy Bank Fee Slip</h4>
+                      <p className="text-xs text-slate-600">J&K Bank Fee Deposition Slip in A4 format.</p>
                     </div>
-                    <h4 className="font-bold text-sm text-slate-900">3. Library Pass Form</h4>
-                    <p className="text-xs text-slate-500">Central library reader membership form & pass.</p>
+                    <button
+                      type="button"
+                      onClick={() => setActivePreviewDoc('bank-slip')}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow cursor-pointer active:scale-95"
+                    >
+                      <CreditCard className="w-3.5 h-3.5 text-emerald-200" />
+                      Print 3-Copy Bank Slip
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setActivePreviewDoc('library')}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition cursor-pointer"
-                  >
-                    <BookOpen className="w-3.5 h-3.5" />
-                    Print Library Form
-                  </button>
+
+                  {/* Card 3: Library Pass Form */}
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-indigo-300 transition">
+                    <div className="space-y-1 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-sm text-slate-900">3. Library Pass Form</h4>
+                      <p className="text-xs text-slate-500">Central library reader membership form & pass.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActivePreviewDoc('library')}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition cursor-pointer"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      Print Library Form
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Official Stamps / Signatures for Printouts */}
             <div className="pt-8 border-t border-dashed border-slate-400 grid grid-cols-2 gap-8 text-center text-xs">
@@ -565,14 +627,25 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                 </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setActivePreviewDoc('form')}
-                className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm transition shadow-lg flex items-center gap-2.5 active:scale-95"
-              >
-                <Printer className="w-5 h-5 text-emerald-400" />
-                Print Official Form & QR Code
-              </button>
+              {userRole === 'incharge' ? (
+                <button
+                  type="button"
+                  onClick={() => setActivePreviewDoc('form')}
+                  className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm transition shadow-lg flex items-center gap-2.5 active:scale-95 cursor-pointer"
+                >
+                  <Printer className="w-5 h-5 text-emerald-400" />
+                  Print Official Form & QR Code
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-sm transition shadow-lg flex items-center gap-2.5 active:scale-95 cursor-pointer"
+                >
+                  <Printer className="w-5 h-5 text-emerald-200" />
+                  Print Submission Receipt
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -672,11 +745,11 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
             </div>
           </div>
 
-          {/* Basic Information & Passport Photograph */}
+          {/* Basic Information & Student Pic */}
           <div>
             <h3 className="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-extrabold text-xs flex items-center justify-center">1</span>
-              Basic Information & Photograph
+              Basic Information & Student Pic
             </h3>
 
             {/* Photo Block */}
@@ -685,7 +758,7 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                 <div className="w-28 h-32 rounded-xl overflow-hidden border-2 border-slate-800 bg-slate-200 shadow-md">
                   <img
                     src={formData.photoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
-                    alt="Student Passport Photo"
+                    alt="Student Passport Pic"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -697,7 +770,7 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
               <div className="flex-1 space-y-2 text-center sm:text-left">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                   <span className="text-xs font-extrabold uppercase text-slate-900 tracking-wide">
-                    Candidate Passport Photo <span className="text-rose-500">*</span>
+                    Candidate Passport Pic <span className="text-rose-500">*</span>
                   </span>
                   <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-300">
                     Mandatory &lt;50KB Size Limit
@@ -707,13 +780,13 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                   </span>
                 </div>
                 <p className="text-xs text-slate-600">
-                  Snap live photo with camera or upload file. Photos are auto-compressed under 50KB and stored directly on the backend server.
+                  Snap live pic with camera or upload pic file. Pics are auto-compressed under 50KB and stored directly on the backend server.
                 </p>
 
                 {formData.photoUrl && (
                   <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] font-mono font-bold text-emerald-800">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    Current Photo Size: {getPhotoSizeKB(formData.photoUrl)} (Validated &lt;50KB)
+                    Current Pic Size: {getPhotoSizeKB(formData.photoUrl)} (Validated &lt;50KB)
                   </div>
                 )}
 
@@ -724,7 +797,7 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                     className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow flex items-center gap-1.5 active:scale-95 cursor-pointer"
                   >
                     <Camera className="w-4 h-4" />
-                    Take Photo with Camera
+                    Take Pic with Camera
                   </button>
 
                   <input
@@ -741,7 +814,7 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                     className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <Upload className="w-4 h-4 text-slate-600" />
-                    Upload Photo File (&lt;50KB)
+                    Upload Pic (&lt;50KB)
                   </button>
                 </div>
               </div>
@@ -1655,7 +1728,7 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                 </label>
                 <label className="flex items-center gap-2 col-span-1 sm:col-span-2">
                   <input type="checkbox" defaultChecked className="rounded text-blue-600" />
-                  7. 3 Recent Passport Photographs
+                  7. 3 Recent Passport Pics
                 </label>
               </div>
 

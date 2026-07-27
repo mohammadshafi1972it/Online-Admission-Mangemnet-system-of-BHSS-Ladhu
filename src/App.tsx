@@ -20,15 +20,28 @@ export default function App() {
   const [activeDocType, setActiveDocType] = useState<DocumentType>('discharge');
   const [isStudentQRModalOpen, setIsStudentQRModalOpen] = useState<boolean>(false);
 
-  // Detect URL parameter for Student Mode (e.g. from scanning Student QR Code)
+  // Detect URL parameter for Student Mode (e.g. from scanning Student QR Code on mobile or Gmail)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const roleParam = params.get('role');
-      const modeParam = params.get('mode');
-      const formParam = params.get('form');
+      const searchStr = window.location.search || '';
+      const hashStr = window.location.hash || '';
+      const fullUrl = window.location.href || '';
 
-      if (roleParam === 'student' || modeParam === 'student' || formParam === 'admission') {
+      const params = new URLSearchParams(searchStr);
+      const hashParams = new URLSearchParams(hashStr.replace(/^#\/?/, '?'));
+
+      const isStudentRole = 
+        params.get('role') === 'student' || 
+        params.get('mode') === 'student' || 
+        params.get('form') === 'admission' ||
+        hashParams.get('role') === 'student' ||
+        hashParams.get('mode') === 'student' ||
+        hashParams.get('form') === 'admission' ||
+        fullUrl.includes('role=student') ||
+        fullUrl.includes('mode=student') ||
+        fullUrl.includes('form=admission');
+
+      if (isStudentRole) {
         setUserRole('student');
         setActiveTab('apply-admission');
       }

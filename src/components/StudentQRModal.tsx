@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateQRCodeDataUrl } from '../utils/qr';
 import { triggerPrint } from '../utils/print';
-import { QrCode, X, Copy, Check, Printer, UserCheck, ShieldCheck, Camera, Smartphone, Sparkles, Building2 } from 'lucide-react';
+import { QrCode, X, Copy, Check, Printer, UserCheck, ShieldCheck, Share2, AlertTriangle, ExternalLink, Building2 } from 'lucide-react';
 
 interface StudentQRModalProps {
   isOpen: boolean;
@@ -14,15 +14,26 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
   onClose,
   onSwitchToStudentView,
 }) => {
-  const [qrDataUrl, setQrDataUrl] = useState<string>('');
-  const [copied, setCopied] = useState(false);
-
-  const studentFormUrl = typeof window !== 'undefined'
+  const defaultOriginUrl = typeof window !== 'undefined'
     ? `${window.location.origin}?role=student&form=admission`
     : 'https://campus-admission-portal.edu/apply?role=student';
 
+  const [studentFormUrl, setStudentFormUrl] = useState<string>(defaultOriginUrl);
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
   useEffect(() => {
     if (isOpen) {
+      setStudentFormUrl(defaultOriginUrl);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && studentFormUrl) {
       generateQRCodeDataUrl(studentFormUrl).then((url) => setQrDataUrl(url));
     }
   }, [isOpen, studentFormUrl]);
@@ -33,6 +44,24 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
     navigator.clipboard.writeText(studentFormUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Student Admission Application Form - Govt. BHSS Ladhoo',
+          text: 'Scan or open this link to fill out the Online Admission Application Form.',
+          url: studentFormUrl,
+        });
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      } catch (e) {
+        handleCopy();
+      }
+    } else {
+      handleCopy();
+    }
   };
 
   return (
@@ -47,7 +76,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-white">Student Admission QR Code Poster</h2>
-              <p className="text-xs text-slate-400">Print or display this poster at the school gate or notice board.</p>
+              <p className="text-xs text-slate-400">Scan from any phone or Gmail account to open the Admission Form directly.</p>
             </div>
           </div>
 
@@ -104,7 +133,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
                   </div>
                 )}
                 <div className="mt-2 font-mono text-[11px] font-black uppercase text-slate-800 tracking-wider">
-                  SCAN WITH MOBILE CAMERA
+                  SCAN WITH ANY MOBILE CAMERA / GMAIL
                 </div>
               </div>
             </div>
@@ -117,7 +146,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
                 </div>
                 <div>
                   <h4 className="font-extrabold text-xs text-slate-900">Open Camera</h4>
-                  <p className="text-[11px] text-slate-600">Open mobile camera or any QR reader app.</p>
+                  <p className="text-[11px] text-slate-600">Open mobile camera or Google Lens app.</p>
                 </div>
               </div>
 
@@ -127,7 +156,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
                 </div>
                 <div>
                   <h4 className="font-extrabold text-xs text-slate-900">Scan QR Code</h4>
-                  <p className="text-[11px] text-slate-600">Point phone camera steady at the QR code above.</p>
+                  <p className="text-[11px] text-slate-600">Point camera at the QR code above.</p>
                 </div>
               </div>
 
@@ -137,7 +166,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
                 </div>
                 <div>
                   <h4 className="font-extrabold text-xs text-slate-900">Fill Application</h4>
-                  <p className="text-[11px] text-slate-600">Tap banner link to open & complete application.</p>
+                  <p className="text-[11px] text-slate-600">Tap link to open & complete admission form.</p>
                 </div>
               </div>
             </div>
@@ -146,7 +175,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
             <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-700 bg-slate-100 p-2.5 rounded-xl border border-slate-300 text-left">
               <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
               <span>
-                <strong>Security Guarantee:</strong> Scanning this QR code grants direct access to student application submission only. Administrative controls and database records remain password protected.
+                <strong>Security Guarantee:</strong> Scanning this QR code grants direct access to student application submission. All administrative records remain password protected.
               </span>
             </div>
 
@@ -163,16 +192,58 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
         {/* Modal Action Controls (Screen Only) */}
         <div className="bg-slate-50 p-4 sm:p-6 border-t border-slate-200 print:hidden space-y-4">
           
-          {/* Direct Link Bar */}
-          <div className="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-300 text-xs font-mono text-slate-700">
-            <span className="truncate flex-1 text-left px-1">{studentFormUrl}</span>
-            <button
-              onClick={handleCopy}
-              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold transition shrink-0 flex items-center gap-1.5 text-xs"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? 'Copied' : 'Copy Link'}
-            </button>
+          {/* Localhost Warning Notice */}
+          {isLocalhost && (
+            <div className="bg-amber-50 border border-amber-300 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-900 text-left">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block font-bold">Localhost Address Detected!</strong>
+                If scanning from an external phone or Gmail account, ensure you use the public web server URL (e.g. Cloud Run / AI Studio shared link). You can edit the link input below.
+              </div>
+            </div>
+          )}
+
+          {/* Editable Student Link Field */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-slate-700 uppercase">
+                Student QR Code Web Address:
+              </label>
+              {studentFormUrl !== defaultOriginUrl && (
+                <button
+                  type="button"
+                  onClick={() => setStudentFormUrl(defaultOriginUrl)}
+                  className="text-[10px] text-blue-600 hover:underline font-bold"
+                >
+                  Reset Default Link
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-300 text-xs font-mono text-slate-700">
+              <input
+                type="text"
+                value={studentFormUrl}
+                onChange={(e) => setStudentFormUrl(e.target.value)}
+                className="w-full px-2 py-1 font-mono text-xs text-slate-900 outline-none"
+                placeholder="Enter public web address for student QR..."
+              />
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold transition shrink-0 flex items-center gap-1.5 text-xs cursor-pointer"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition shrink-0 flex items-center gap-1.5 text-xs cursor-pointer"
+              >
+                <Share2 className="w-3.5 h-3.5 text-blue-200" />
+                {shared ? 'Shared' : 'Share'}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -181,7 +252,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
                 onClose();
                 onSwitchToStudentView();
               }}
-              className="py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95"
+              className="py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
             >
               <UserCheck className="w-4 h-4 text-amber-300" />
               Test Student Mode View
@@ -189,7 +260,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
 
             <button
               onClick={() => triggerPrint('printable-qr-modal')}
-              className="py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95"
+              className="py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
             >
               <Printer className="w-4 h-4 text-emerald-200" />
               Print Official A4 QR Poster
@@ -201,3 +272,4 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
     </div>
   );
 };
+
