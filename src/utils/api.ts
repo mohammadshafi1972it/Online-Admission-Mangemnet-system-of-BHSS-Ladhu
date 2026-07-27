@@ -16,14 +16,55 @@ function saveCandidateToLocal(candidate: Candidate) {
   }
 }
 
+export async function syncPendingSubmissions() {
+  try {
+    const pendingRaw = localStorage.getItem('candidates_offline_queue');
+    if (!pendingRaw) return;
+    const pendingList: Partial<Candidate>[] = JSON.parse(pendingRaw);
+    if (!pendingList || pendingList.length === 0) return;
+
+    const remaining: Partial<Candidate>[] = [];
+    for (const item of pendingList) {
+      try {
+        const res = await fetch('/api/candidates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(item),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data) saveCandidateToLocal(json.data);
+        } else {
+          remaining.push(item);
+        }
+      } catch (err) {
+        remaining.push(item);
+      }
+    }
+    if (remaining.length > 0) {
+      localStorage.setItem('candidates_offline_queue', JSON.stringify(remaining));
+    } else {
+      localStorage.removeItem('candidates_offline_queue');
+    }
+  } catch (e) {
+    console.warn('Error syncing pending offline submissions:', e);
+  }
+}
+
 export async function fetchCandidates(search = '', course = '', status = ''): Promise<Candidate[]> {
+  // Sync any offline submissions first
+  await syncPendingSubmissions();
+
   try {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     if (course) params.append('course', course);
     if (status) params.append('status', status);
+    params.append('t', Date.now().toString()); // Prevent aggressive mobile browser caching
 
-    const res = await fetch(`/api/candidates?${params.toString()}`);
+    const res = await fetch(`/api/candidates?${params.toString()}`, {
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     if (!res.ok) throw new Error('Failed to fetch from backend API');
     const json = await res.json();
     const serverCandidates: Candidate[] = json.data || [];
@@ -89,6 +130,7 @@ export async function fetchCandidateByIdentifier(identifier: string): Promise<Ca
 }
 
 export async function submitAdmissionForm(candidateData: Partial<Candidate>): Promise<Candidate> {
+  // Try sending candidate to server
   try {
     const res = await fetch('/api/candidates', {
       method: 'POST',
@@ -103,14 +145,30 @@ export async function submitAdmissionForm(candidateData: Partial<Candidate>): Pr
         return json.data;
       }
     } else {
-      const errorJson = await res.json().catch(() => ({}));
-      console.warn('Backend returned non-OK status during form submission:', res.status, errorJson);
+      console.warn('Backend returned non-OK status on first attempt:', res.status);
+      // If photo string was too large or caused payload error, retry without heavy photo string
+      if (candidateData.photoUrl && candidateData.photoUrl.length > 50000) {
+        console.warn('Retrying form submission with lightweight photo payload...');
+        const retryData = { ...candidateData, photoUrl: undefined };
+        const retryRes = await fetch('/api/candidates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(retryData),
+        });
+        if (retryRes.ok) {
+          const json = await retryRes.json();
+          if (json.data) {
+            saveCandidateToLocal(json.data);
+            return json.data;
+          }
+        }
+      }
     }
   } catch (err: any) {
-    console.warn('API submission network error, saving candidate locally:', err);
+    console.warn('API submission network error, queuing for offline sync:', err);
   }
 
-  // Fallback candidate creation so submission never crashes or throws
+  // Fallback candidate creation & queuing for offline auto-sync
   const localRaw = localStorage.getItem('candidates_fallback_db');
   const existing: Candidate[] = localRaw ? JSON.parse(localRaw) : [];
   const nextNumber = 1000 + existing.length + 1;
@@ -155,7 +213,21 @@ export async function submitAdmissionForm(candidateData: Partial<Candidate>): Pr
     photoUrl: candidateData.photoUrl,
   };
 
+  // Add to local fallback storage
   saveCandidateToLocal(fallbackCandidate);
+
+  // Queue in offline queue so syncPendingSubmissions will automatically upload it to server when online
+  try {
+    const queueRaw = localStorage.getItem('candidates_offline_queue');
+    const queueList: Partial<Candidate>[] = queueRaw ? JSON.parse(queueRaw) : [];
+    if (!queueList.some((c) => c.id === fallbackCandidate.id)) {
+      queueList.push(fallbackCandidate);
+      localStorage.setItem('candidates_offline_queue', JSON.stringify(queueList));
+    }
+  } catch (e) {
+    console.warn('Failed to save to offline queue:', e);
+  }
+
   return fallbackCandidate;
 }
 

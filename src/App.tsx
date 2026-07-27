@@ -100,18 +100,20 @@ export default function App() {
       loadCandidatesData(false);
     }, 4000);
 
-    const handleFocus = () => {
+    const handleFocusOrOnline = () => {
       loadCandidatesData(false);
     };
 
-    window.addEventListener('focus', handleFocus);
+    window.addEventListener('focus', handleFocusOrOnline);
+    window.addEventListener('online', handleFocusOrOnline);
 
     return () => {
       if (eventSource) {
         eventSource.close();
       }
       clearInterval(interval);
-      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('focus', handleFocusOrOnline);
+      window.removeEventListener('online', handleFocusOrOnline);
     };
   }, []);
 
