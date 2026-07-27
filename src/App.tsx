@@ -55,6 +55,8 @@ export default function App() {
     }
   }, [userRole, activeTab]);
 
+  const [isLiveSynced, setIsLiveSynced] = useState<boolean>(false);
+
   const loadCandidatesData = async (showSpinner = false) => {
     if (showSpinner) setLoading(true);
     try {
@@ -77,28 +79,54 @@ export default function App() {
     let eventSource: EventSource | null = null;
     try {
       eventSource = new EventSource('/api/events');
+
+      eventSource.onopen = () => {
+        setIsLiveSynced(true);
+      };
+
       eventSource.onmessage = (event) => {
         try {
           const parsed = JSON.parse(event.data);
-          if (parsed.type && parsed.type !== 'connected') {
-            console.log('[Real-Time Sync] Live event received:', parsed.type);
+          if (parsed.type === 'connected' || parsed.type === 'ping') {
+            setIsLiveSynced(true);
+            return;
+          }
+
+          if (parsed.type) {
+            console.log('[Real-Time Sync] Live event received:', parsed.type, parsed.payload);
+            setIsLiveSynced(true);
+
+            // Instant zero-latency state reflection
+            if (parsed.type === 'candidate_submitted' && parsed.payload) {
+              setCandidates((prev) => [parsed.payload, ...prev.filter((c) => c.id !== parsed.payload.id)]);
+            } else if (parsed.type === 'candidate_updated' && parsed.payload) {
+              setCandidates((prev) => prev.map((c) => (c.id === parsed.payload.id ? { ...c, ...parsed.payload } : c)));
+            } else if (parsed.type === 'candidate_deleted' && parsed.payload?.id) {
+              setCandidates((prev) => prev.filter((c) => c.id !== parsed.payload.id));
+            } else if (parsed.type === 'database_cleared') {
+              setCandidates([]);
+            }
+
+            // Sync with authoritative backend database
             loadCandidatesData(false);
           }
         } catch (e) {
           console.error('SSE parse error:', e);
         }
       };
+
       eventSource.onerror = () => {
-        // Soft fail gracefully if proxy drops connection
+        setIsLiveSynced(false);
       };
     } catch (err) {
       console.warn('EventSource setup warning:', err);
+      setIsLiveSynced(false);
     }
 
-    // Auto-sync polling every 4 seconds for bulletproof backup sync
+    // Auto-sync polling every 3 seconds for bulletproof backup sync
     const interval = setInterval(() => {
       loadCandidatesData(false);
-    }, 4000);
+    }, 3000);
 
     const handleFocusOrOnline = () => {
       loadCandidatesData(false);
@@ -142,6 +170,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         pendingCount={pendingCount}
         onShowStudentQR={() => setIsStudentQRModalOpen(true)}
+        isLiveSynced={isLiveSynced}
       />
 
       {/* Main Content Area */}

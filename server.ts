@@ -61,10 +61,16 @@ function broadcastDataChange(type: string, payload?: any) {
   }
 }
 
+// Send periodic heartbeat every 15 seconds to keep real-time SSE stream alive
+setInterval(() => {
+  broadcastDataChange('ping', { time: Date.now() });
+}, 15000);
+
 app.get('/api/events', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
   sseClients.add(res);

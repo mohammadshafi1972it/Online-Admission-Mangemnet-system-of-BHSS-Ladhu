@@ -28,6 +28,7 @@ interface NavbarProps {
   setActiveTab: (tab: ActiveTab) => void;
   pendingCount: number;
   onShowStudentQR: () => void;
+  isLiveSynced?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
@@ -36,7 +37,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab, 
   setActiveTab, 
   pendingCount,
-  onShowStudentQR
+  onShowStudentQR,
+  isLiveSynced = true
 }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
@@ -74,6 +76,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                       Incharge Admission
                     </>
                   )}
+                </span>
+
+                {/* Real-time Sync Badge */}
+                <span className={`hidden sm:flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  isLiveSynced
+                    ? 'bg-emerald-950/80 text-emerald-300 border-emerald-600/60'
+                    : 'bg-amber-950/80 text-amber-300 border-amber-600/60'
+                }`} title={isLiveSynced ? 'Realtime Backend Synchronized' : 'Reconnecting Sync...'}>
+                  <span className={`w-2 h-2 rounded-full ${isLiveSynced ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                  {isLiveSynced ? 'Realtime Live' : 'Syncing...'}
                 </span>
               </h1>
               <p className="text-[11px] text-slate-400">
