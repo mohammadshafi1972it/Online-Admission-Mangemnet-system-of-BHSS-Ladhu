@@ -136,7 +136,7 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
       } else if (value.includes('Humanities') || value.includes('Arts')) {
         subjects = 'General English, Education, Economics, Political Science, History';
       } else if (value.includes('Vocational')) {
-        subjects = 'General English, IT & ITES, Tourism & Hospitality';
+        subjects = 'General English, IT & ITES';
       }
       setFormData({ ...formData, courseApplied: value, majorSubjects: subjects });
     } else {
@@ -1215,10 +1215,10 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                 <div className="space-y-2 pt-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black uppercase text-amber-900 tracking-wide">
-                      C. Vocational & NSQF Skill Trades (Select IT & ITES or Tourism & Hospitality):
+                      C. Vocational & NSQF Skill Trades (Select ONLY 1 out of 2 trades):
                     </span>
                     <span className="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full border border-purple-300">
-                      NSQF Trades (2 Available)
+                      Select Only 1 Trade
                     </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1233,9 +1233,12 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                           type="button"
                           onClick={() => {
                             let currentList = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
+                            const vocationalTrades = ['IT & ITES', 'Tourism & Hospitality'];
                             if (isSelected) {
                               currentList = currentList.filter(s => s !== voca.name);
                             } else {
+                              // Deselect any other vocational trade first so ONLY ONE is selected out of the two
+                              currentList = currentList.filter(s => !vocationalTrades.includes(s));
                               currentList.push(voca.name);
                             }
                             setFormData({ ...formData, majorSubjects: currentList.join(', ') });
@@ -1356,7 +1359,7 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                             } else if (stream.id.includes('Humanities')) {
                               defaultSubj = 'General English, Education, Economics, Political Science, History';
                             } else if (stream.id.includes('Vocational')) {
-                              defaultSubj = 'General English, IT & ITES, Tourism & Hospitality';
+                              defaultSubj = 'General English, IT & ITES';
                             }
                             setFormData({
                               ...formData,
@@ -1459,9 +1462,11 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                     </div>
                   )}
 
-                  {/* Vocational Skill Trade Toggle (Available for All Streams as 5th/Vocational choice) */}
+                  {/* Vocational Skill Trade Toggle (Available for All Streams as 5th/Vocational choice - Select ONLY 1 trade) */}
                   <div className="pt-2 border-t border-slate-200">
-                    <span className="text-xs font-bold text-purple-900 block mb-1.5">Vocational & NSQF Skill Trade Choice (Optional):</span>
+                    <span className="text-xs font-bold text-purple-900 block mb-1.5">
+                      Vocational & NSQF Skill Trade Choice (Select ONLY 1 out of 2 trades):
+                    </span>
                     <div className="flex flex-wrap gap-2">
                       {['IT & ITES', 'Tourism & Hospitality'].map((voca) => {
                         const isSelected = formData.majorSubjects.includes(voca);
@@ -1471,8 +1476,14 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
                             type="button"
                             onClick={() => {
                               let list = formData.majorSubjects.split(',').map(s => s.trim()).filter(Boolean);
-                              if (isSelected) list = list.filter(s => s !== voca);
-                              else list.push(voca);
+                              const vocationalTrades = ['IT & ITES', 'Tourism & Hospitality'];
+                              if (isSelected) {
+                                list = list.filter(s => s !== voca);
+                              } else {
+                                // Deselect any other vocational trade first so ONLY ONE can be selected out of the two
+                                list = list.filter(s => !vocationalTrades.includes(s));
+                                list.push(voca);
+                              }
                               setFormData({ ...formData, majorSubjects: list.join(', ') });
                             }}
                             className={`px-3.5 py-1.5 rounded-lg font-extrabold text-xs border transition ${
