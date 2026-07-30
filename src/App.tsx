@@ -13,7 +13,7 @@ import { StudentQRModal } from './components/StudentQRModal';
 
 export default function App() {
   const [userRole, setUserRole] = useState<UserRole>('incharge');
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('apply-admission');
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
@@ -185,17 +185,7 @@ export default function App() {
             {/* INCHARGE ADMISSION TABS */}
             {userRole === 'incharge' && (
               <>
-                {activeTab === 'dashboard' && (
-                  <Dashboard
-                    candidates={candidates}
-                    setActiveTab={setActiveTab}
-                    onOpenDocuments={handleOpenDocuments}
-                    onOpenQR={handleOpenQR}
-                    onShowStudentQR={() => setIsStudentQRModalOpen(true)}
-                  />
-                )}
-
-                {activeTab === 'candidates-list' && (
+                {(activeTab === 'candidates-list' || activeTab === 'dashboard') && (
                   <CandidatesList
                     candidates={candidates}
                     onRefresh={loadCandidatesData}
@@ -232,6 +222,17 @@ export default function App() {
                     onRefresh={loadCandidatesData}
                   />
                 )}
+
+                {activeTab === 'uploaded-forms' && (
+                  <UploadedFormsManager
+                    candidates={candidates}
+                    onSuccessSubmitted={(newCandidate) => {
+                      loadCandidatesData();
+                      setSelectedCandidate(newCandidate);
+                    }}
+                    onOpenDocuments={userRole === 'incharge' ? handleOpenDocuments : undefined}
+                  />
+                )}
               </>
             )}
 
@@ -244,17 +245,6 @@ export default function App() {
                 }}
                 onOpenDocuments={userRole === 'incharge' ? handleOpenDocuments : undefined}
                 userRole={userRole}
-              />
-            )}
-
-            {activeTab === 'uploaded-forms' && (
-              <UploadedFormsManager
-                candidates={candidates}
-                onSuccessSubmitted={(newCandidate) => {
-                  loadCandidatesData();
-                  setSelectedCandidate(newCandidate);
-                }}
-                onOpenDocuments={userRole === 'incharge' ? handleOpenDocuments : undefined}
               />
             )}
           </>

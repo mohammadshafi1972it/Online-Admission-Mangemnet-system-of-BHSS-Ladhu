@@ -180,102 +180,53 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <div className="flex items-center gap-2 text-[11px] font-semibold text-amber-300 bg-amber-950/80 border border-amber-800/80 px-3 py-1.5 rounded-xl">
                 <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>QR Mode Active: Only Admission Form Visible (All Admin & DB Features Disabled)</span>
+                <span>Student Mode: Admission Form Active (Admin Tools Protected)</span>
               </div>
             </div>
           ) : (
-            /* INCHARGE ADMISSION FULL NAVIGATION TABS */
-            <>
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
-                  activeTab === 'dashboard'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                Dashboard
-              </button>
-
+            /* INCHARGE ADMISSION STREAMLINED NAVIGATION TABS */
+            <div className="flex items-center gap-2 overflow-x-auto w-full">
               <button
                 onClick={() => setActiveTab('apply-admission')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer ${
                   activeTab === 'apply-admission'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
+                    ? 'bg-blue-600 text-white shadow-md'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
-                <UserPlus className="w-4 h-4 text-blue-400" />
-                Apply Admission
+                <UserPlus className="w-4 h-4 text-blue-300" />
+                Admission Form
               </button>
-
 
               <button
                 onClick={() => setActiveTab('candidates-list')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
-                  activeTab === 'candidates-list'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer ${
+                  activeTab === 'candidates-list' || activeTab === 'dashboard' || activeTab === 'excel-manage' || activeTab === 'uploaded-forms'
+                    ? 'bg-blue-600 text-white shadow-md'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
                 <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                Backend Excel DB
+                Admission Management
                 {pendingCount > 0 && (
-                  <span className="ml-1 bg-amber-500 text-slate-950 font-bold text-xs px-1.5 py-0.2 rounded-full">
-                    {pendingCount}
+                  <span className="ml-1 bg-amber-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded-full shadow-sm">
+                    {pendingCount} Pending
                   </span>
                 )}
               </button>
 
               <button
                 onClick={() => setActiveTab('generate-documents')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
-                  activeTab === 'generate-documents'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer ${
+                  activeTab === 'generate-documents' || activeTab === 'qr-scanner'
+                    ? 'bg-blue-600 text-white shadow-md'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
-                <FileText className="w-4 h-4 text-indigo-400" />
-                Auto Certificates & Forms
+                <FileText className="w-4 h-4 text-indigo-300" />
+                Print Documents & Certificates
               </button>
-
-              <button
-                onClick={() => setActiveTab('qr-scanner')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
-                  activeTab === 'qr-scanner'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <QrCode className="w-4 h-4 text-teal-400" />
-                QR Scanner & Lookup
-              </button>
-
-              <button
-                onClick={() => setActiveTab('excel-manage')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
-                  activeTab === 'excel-manage'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Download className="w-4 h-4 text-cyan-400" />
-                Excel Sync & Import
-              </button>
-
-              <button
-                onClick={() => setActiveTab('uploaded-forms')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition whitespace-nowrap ${
-                  activeTab === 'uploaded-forms'
-                    ? 'bg-blue-600 text-white font-semibold shadow'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Upload className="w-4 h-4 text-purple-400" />
-                Uploaded Form Hub
-              </button>
-            </>
+            </div>
           )}
 
         </div>
