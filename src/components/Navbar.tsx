@@ -200,6 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => setActiveTab('candidates-list')}
+                title="View, Verify, Approve & Edit Submitted Applications from all devices"
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer ${
                   activeTab === 'candidates-list' || activeTab === 'dashboard' || activeTab === 'excel-manage' || activeTab === 'uploaded-forms'
                     ? 'bg-blue-600 text-white shadow-md'
@@ -207,10 +208,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                Admission Management
-                {pendingCount > 0 && (
-                  <span className="ml-1 bg-amber-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded-full shadow-sm">
+                <span>Admission Management DB</span>
+                {pendingCount > 0 ? (
+                  <span className="ml-1 bg-amber-400 text-slate-950 font-black text-xs px-2 py-0.5 rounded-full shadow-sm animate-pulse">
                     {pendingCount} Pending
+                  </span>
+                ) : (
+                  <span className="ml-1 bg-emerald-950/80 text-emerald-300 border border-emerald-600/60 font-bold text-[10px] px-2 py-0.5 rounded-full">
+                    Live
                   </span>
                 )}
               </button>

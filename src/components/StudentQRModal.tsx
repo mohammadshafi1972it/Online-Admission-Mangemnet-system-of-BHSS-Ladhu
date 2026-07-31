@@ -14,17 +14,22 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
   onClose,
   onSwitchToStudentView,
 }) => {
-  const defaultOriginUrl = typeof window !== 'undefined'
+  const devPublicUrl = 'https://ais-dev-fk4b7slbf5gk354tn5c6ci-657798019634.asia-east1.run.app/?role=student&form=admission';
+  const sharedPublicUrl = 'https://ais-pre-fk4b7slbf5gk354tn5c6ci-657798019634.asia-east1.run.app/?role=student&form=admission';
+  const browserOriginUrl = typeof window !== 'undefined'
     ? `${window.location.origin}?role=student&form=admission`
-    : 'https://campus-admission-portal.edu/apply?role=student';
+    : devPublicUrl;
+
+  // Use public URL by default if local origin contains localhost or port 3000
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '3000');
+
+  const defaultOriginUrl = isLocalhost ? devPublicUrl : browserOriginUrl;
 
   const [studentFormUrl, setStudentFormUrl] = useState<string>(defaultOriginUrl);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
-
-  const isLocalhost = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
   useEffect(() => {
     if (isOpen) {
@@ -203,22 +208,63 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
             </div>
           )}
 
-          {/* Editable Student Link Field */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-700 uppercase">
-                Student QR Code Web Address:
+          {/* Editable Student Link Field & Presets */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700 uppercase flex items-center gap-1.5">
+                <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+                QR Link (Public Web Address for Mobile Scans):
               </label>
               {studentFormUrl !== defaultOriginUrl && (
                 <button
                   type="button"
                   onClick={() => setStudentFormUrl(defaultOriginUrl)}
-                  className="text-[10px] text-blue-600 hover:underline font-bold"
+                  className="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer"
                 >
-                  Reset Default Link
+                  Reset Default
                 </button>
               )}
             </div>
+
+            {/* Quick Preset Buttons */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setStudentFormUrl(devPublicUrl)}
+                className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
+                  studentFormUrl === devPublicUrl
+                    ? 'bg-blue-600 text-white border-blue-700'
+                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                }`}
+              >
+                🌐 Development Public URL
+              </button>
+              <button
+                type="button"
+                onClick={() => setStudentFormUrl(sharedPublicUrl)}
+                className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
+                  studentFormUrl === sharedPublicUrl
+                    ? 'bg-blue-600 text-white border-blue-700'
+                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                }`}
+              >
+                📱 Shared App URL
+              </button>
+              {browserOriginUrl !== devPublicUrl && (
+                <button
+                  type="button"
+                  onClick={() => setStudentFormUrl(browserOriginUrl)}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
+                    studentFormUrl === browserOriginUrl
+                      ? 'bg-blue-600 text-white border-blue-700'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                  }`}
+                >
+                  💻 Local Origin URL
+                </button>
+              )}
+            </div>
+
             <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-300 text-xs font-mono text-slate-700">
               <input
                 type="text"
@@ -233,7 +279,7 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
                 className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold transition shrink-0 flex items-center gap-1.5 text-xs cursor-pointer"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? 'Copied' : 'Copy'}
+                {copied ? 'Copied' : 'Copy Link'}
               </button>
               <button
                 type="button"
@@ -243,6 +289,20 @@ export const StudentQRModal: React.FC<StudentQRModalProps> = ({
                 <Share2 className="w-3.5 h-3.5 text-blue-200" />
                 {shared ? 'Shared' : 'Share'}
               </button>
+            </div>
+
+            {/* How to view/verify submitted student data hint */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 text-left space-y-1">
+              <p className="font-bold text-blue-950 flex items-center gap-1.5">
+                <UserCheck className="w-4 h-4 text-blue-600" />
+                Where do student applications appear for Viewing, Verifying & Modifying?
+              </p>
+              <p className="text-blue-800">
+                When a student scans this QR code on any phone and submits their form, their application is saved to the central database and immediately appears in the <strong>"Admission Management"</strong> tab in real time.
+              </p>
+              <p className="text-blue-800">
+                In <strong>Admission Management</strong>, click <strong>"View Data"</strong> to see full submitted details, or <strong>"Edit"</strong> to modify student records (Name, Marks, Fees, Roll No, Stream).
+              </p>
             </div>
           </div>
 
