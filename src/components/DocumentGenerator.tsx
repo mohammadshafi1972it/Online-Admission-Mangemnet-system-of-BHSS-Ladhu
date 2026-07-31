@@ -95,7 +95,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
     );
   }
 
-  const fees = calculateCourseFees(activeCandidate.courseApplied, activeCandidate.category);
+  const fees = calculateCourseFees(activeCandidate.courseApplied, activeCandidate.category, activeCandidate.gender, activeCandidate.classWishToJoin);
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4 space-y-6">

@@ -99,8 +99,8 @@ export const ApplyAdmission: React.FC<ApplyAdmissionProps> = ({ onSuccessSubmitt
     }
   };
 
-  // Calculate live fee breakdown based on course, category, and gender
-  const fees = calculateCourseFees(formData.courseApplied, formData.category, formData.gender);
+  // Calculate live fee breakdown based on course, category, gender, and class
+  const fees = calculateCourseFees(formData.courseApplied, formData.category, formData.gender, formData.classWishToJoin);
 
   // Autocalculate Percentage, Grade & Standing Division
   const gradeInfo = calculateGradeAndPercentage(formData.marksObtained, formData.totalMarks);

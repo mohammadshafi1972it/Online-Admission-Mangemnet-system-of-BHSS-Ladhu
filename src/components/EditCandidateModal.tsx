@@ -849,7 +849,7 @@ export const EditCandidateModal: React.FC<EditCandidateModalProps> = ({
                     <input
                       type="number"
                       name="feeAmount"
-                      value={formData.feeAmount ?? 1400}
+                      value={formData.feeAmount ?? (formData.gender?.toLowerCase() === 'female' ? 1325 : 1400)}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
                     />

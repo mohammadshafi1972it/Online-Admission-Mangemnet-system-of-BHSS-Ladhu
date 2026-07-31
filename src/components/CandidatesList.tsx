@@ -648,7 +648,7 @@ export const CandidatesList: React.FC<CandidatesListProps> = ({
                           }`}
                         >
                           <IndianRupee className="w-3 h-3" />
-                          {candidate.feeStatus === 'Paid' ? 'Paid (₹' + (candidate.feeAmount || 1400) + ')' : 'Mark Paid'}
+                          {candidate.feeStatus === 'Paid' ? 'Paid (₹' + (candidate.feeAmount || (candidate.gender?.toLowerCase() === 'female' ? 1325 : 1400)) + ')' : 'Mark Paid'}
                         </button>
                       </td>
 

@@ -18,11 +18,13 @@ export function calculateCourseFees(
     (course || '').includes('10th') ||
     (course || '').toLowerCase().includes('secondary');
 
-  let tuitionFee = 600;
+  // Standard Fee Structure for Class 11th & 12th (All Streams):
+  // Boys = ₹1400, Girls = ₹1325 (₹75 Girl Child Concession on Tuition)
+  let tuitionFee = isFemale ? 475 : 550;
   let admissionFee = 200;
-  let developmentFund = 300;
+  let developmentFund = 400;
   let libraryDeposit = 150;
-  let examFee = 150;
+  let examFee = 100;
 
   if (isSecondary) {
     tuitionFee = isFemale ? 350 : 450;
@@ -30,19 +32,6 @@ export function calculateCourseFees(
     developmentFund = 200;
     libraryDeposit = 100;
     examFee = 100;
-  } else {
-    // 11th & 12th Class
-    if (course.includes('Science') || course.includes('Medical')) {
-      tuitionFee = isFemale ? 525 : 600;
-    } else if (course.includes('Humanities') || course.includes('Arts')) {
-      tuitionFee = isFemale ? 425 : 500;
-    } else {
-      tuitionFee = isFemale ? 525 : 600;
-    }
-    admissionFee = 200;
-    developmentFund = 300;
-    libraryDeposit = 150;
-    examFee = 150;
   }
 
   // Category concessions if applicable

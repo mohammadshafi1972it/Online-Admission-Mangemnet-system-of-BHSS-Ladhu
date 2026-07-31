@@ -229,7 +229,7 @@ export const ViewApplicantDataModal: React.FC<ViewApplicantDataModalProps> = ({
 
             {candidate.feeStatus === 'Paid' ? (
               <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-extrabold rounded-md">
-                Fee Paid (₹{candidate.feeAmount || 1400})
+                Fee Paid (₹{candidate.feeAmount || (candidate.gender?.toLowerCase() === 'female' ? 1325 : 1400)})
               </span>
             ) : (
               <span className="px-2.5 py-0.5 bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-extrabold rounded-md">
