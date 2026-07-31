@@ -19,7 +19,8 @@ import {
   UserCheck,
   ShieldAlert,
   GraduationCap,
-  User
+  User,
+  Copy
 } from 'lucide-react';
 
 interface DocumentGeneratorProps {
@@ -37,6 +38,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 }) => {
   const [docType, setDocType] = useState<DocumentType>(defaultDocType);
   const [dcFormat, setDcFormat] = useState<'ladhu' | 'standard'>('standard');
+  const [dischargeCopyType, setDischargeCopyType] = useState<'both' | 'office' | 'student'>('both');
   const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(selectedCandidate || candidates[0] || null);
   const [qrUrl, setQrUrl] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -270,35 +272,80 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
           </div>
         </div>
 
-        {/* Discharge Certificate Sub-Format Toggle (Visible when Discharge Certificate selected) */}
+        {/* Discharge Certificate Sub-Format & Copy Mode Controls */}
         {docType === 'discharge' && (
-          <div className="flex items-center justify-between pt-3 border-t border-slate-800 print:hidden">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">
-              Discharge Certificate Format Style:
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setDcFormat('standard')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  dcFormat === 'standard'
-                    ? 'bg-amber-600 text-white shadow'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                Standard School Format (Default)
-              </button>
-              <button
-                type="button"
-                onClick={() => setDcFormat('ladhu')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  dcFormat === 'ladhu'
-                    ? 'bg-emerald-600 text-white shadow'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                Govt. Boys HSS Ladhu Format
-              </button>
+          <div className="space-y-3 pt-3 border-t border-slate-800 print:hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">
+                Discharge Certificate Format Style:
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDcFormat('standard')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    dcFormat === 'standard'
+                      ? 'bg-amber-600 text-white shadow'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  Standard School Format
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDcFormat('ladhu')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    dcFormat === 'ladhu'
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  Govt. Boys HSS Ladhu Format
+                </button>
+              </div>
+            </div>
+
+            {/* Carbon / Office Copy Mode Buttons */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
+                <Copy className="w-4 h-4 text-amber-400" />
+                <span>Print Copy Options (Carbon / Office Copy):</span>
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setDischargeCopyType('both')}
+                  className={`px-3 py-1 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    dischargeCopyType === 'both'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md ring-2 ring-amber-400'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  📄 2-in-1 (Student Copy + Office Carbon Copy)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDischargeCopyType('office')}
+                  className={`px-3 py-1 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    dischargeCopyType === 'office'
+                      ? 'bg-red-600 text-white shadow-md ring-2 ring-red-400'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  🏛️ Office Copy Only (Carbon Copy)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDischargeCopyType('student')}
+                  className={`px-3 py-1 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    dischargeCopyType === 'student'
+                      ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-400'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  🎓 Student Copy Only (Original)
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -307,336 +354,405 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
       {/* DOCUMENT PAPER PREVIEW CONTAINER */}
       <div id="printable-document-container" className="bg-slate-100 p-4 sm:p-8 rounded-2xl shadow-inner border border-slate-300 flex justify-center print:p-0 print:border-none print:shadow-none print:bg-white">
         
-        {/* DOCUMENT 1A: DISCHARGE CERTIFICATE - GOVT BOYS HSS LADHU FORMAT */}
-        {docType === 'discharge' && dcFormat === 'ladhu' && (
-          <div className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-full">
-            {/* Outer Green Border Frame */}
-            <div className="discharge-outer-frame border-2 border-emerald-900 p-1.5 sm:p-2 relative bg-white flex flex-col justify-between">
-              {/* Inner Green Border Line */}
-              <div className="discharge-inner-frame border border-emerald-900 p-3 sm:p-4 relative space-y-2 print:space-y-1.5 flex-1 flex flex-col justify-between">
+        {/* DISCHARGE CERTIFICATES (LADHU OR STANDARD FORMAT WITH CARBON / OFFICE COPY OPTIONS) */}
+        {docType === 'discharge' && activeCandidate && (
+          <div className="w-full space-y-6">
+            {/* Helper function to render Ladhu Format */}
+            {(() => {
+              const renderLadhu = (isOfficeCopy: boolean) => (
+                <div key={isOfficeCopy ? 'ladhu-office' : 'ladhu-student'} className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-full my-2">
+                  {/* Outer Green Border Frame */}
+                  <div className="discharge-outer-frame border-2 border-emerald-900 p-1.5 sm:p-2 relative bg-white flex flex-col justify-between overflow-hidden">
+                    {/* Inner Green Border Line */}
+                    <div className="discharge-inner-frame border border-emerald-900 p-3 sm:p-4 relative space-y-2 print:space-y-1.5 flex-1 flex flex-col justify-between">
 
-                {/* Watermark in background */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-5 overflow-hidden">
-                  <span className="text-7xl sm:text-8xl font-black font-serif text-emerald-950 uppercase tracking-widest rotate-[-15deg]">
-                    GBHSS LADHU
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {/* Header Emblem & Title */}
-                  <div className="text-center space-y-0.5 relative z-10">
-                    <div className="w-10 h-10 rounded-full border-2 border-emerald-900 mx-auto flex items-center justify-center p-0.5 bg-emerald-50/50">
-                      <div className="w-full h-full rounded-full border border-emerald-900 flex items-center justify-center">
-                        <span className="text-emerald-900 font-bold text-[9px] font-serif">GBHSS</span>
-                      </div>
-                    </div>
-
-                    <p className="text-[9px] font-serif tracking-[0.2em] text-slate-700 font-bold uppercase mt-0.5">
-                      OFFICE OF THE PRINCIPAL
-                    </p>
-                    <h1 className="text-lg sm:text-xl font-black uppercase text-emerald-950 font-serif tracking-tight">
-                      GOVT. BOYS HIGHER SECONDARY SCHOOL
-                    </h1>
-                    <p className="text-[11px] font-serif font-semibold text-emerald-900 tracking-wider">
-                      LADHU PAMPORE, PULWAMA, KASHMIR
-                    </p>
-
-                    {/* Red Framed Title Box */}
-                    <div className="pt-0.5">
-                      <div className="inline-block border border-amber-800/70 bg-amber-50/30 px-4 py-0.5 rounded shadow-sm">
-                        <span className="text-red-900 font-serif font-extrabold text-xs sm:text-sm tracking-widest uppercase">
-                          DISCHARGE CERTIFICATE
+                      {/* Watermark in background */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-5 overflow-hidden z-0">
+                        <span className="text-7xl sm:text-8xl font-black font-serif text-emerald-950 uppercase tracking-widest rotate-[-15deg]">
+                          GBHSS LADHU
                         </span>
                       </div>
-                    </div>
-                  </div>
 
-                  {/* C. No. & Reg No., Admission No. & Date */}
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-serif relative z-10">
-                    <div className="flex items-baseline">
-                      <span className="font-bold text-slate-800 shrink-0">C. No.</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.id}</span>
-                    </div>
-                    <div className="flex items-baseline">
-                      <span className="font-bold text-slate-800 shrink-0">Reg. No.</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.enrolmentNumber || `REG-${activeCandidate.id}`}</span>
-                    </div>
-                    <div className="flex items-baseline">
-                      <span className="font-bold text-slate-800 shrink-0">Admission No.</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.bankChallanNo || activeCandidate.id}</span>
-                    </div>
-                    <div className="flex items-baseline">
-                      <span className="font-bold text-slate-800 shrink-0">Date of Issue</span>
-                      <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{new Date().toISOString().split('T')[0]}</span>
-                    </div>
-                  </div>
-
-                  {/* Personal Details Boxes + Photograph Frame on Right Side */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-2 relative z-10 items-center">
-                    <div className="md:col-span-8 space-y-1 text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="w-24 font-semibold text-slate-800 shrink-0">Name</span>
-                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
-                          {activeCandidate.fullName}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="w-24 font-semibold text-slate-800 shrink-0">Father's Name</span>
-                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
-                          {activeCandidate.fatherName}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="w-24 font-semibold text-slate-800 shrink-0">Mother's Name</span>
-                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
-                          {activeCandidate.motherName || 'N/A'}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="w-24 font-semibold text-slate-800 shrink-0">D.O.B. (figures)</span>
-                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 font-mono text-xs">
-                          {activeCandidate.dob || '2005-06-14'}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="w-24 font-semibold text-slate-800 shrink-0">Address</span>
-                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs truncate">
-                          {activeCandidate.address || 'Ladhoo Pampore'}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="w-24 font-semibold text-slate-800 shrink-0">District</span>
-                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
-                          {activeCandidate.district || (activeCandidate.address?.toLowerCase().includes('pulwama') ? 'Pulwama' : 'Pulwama')}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Photograph Box (Right Side of Certificate) */}
-                    <div className="md:col-span-4 flex flex-col items-center justify-center md:items-end">
-                      <div className="w-24 h-28 border-2 border-emerald-900 rounded-sm bg-emerald-50/20 p-0.5 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden bg-white">
-                        {activeCandidate.photoUrl ? (
-                          <img src={activeCandidate.photoUrl} alt={activeCandidate.fullName} className="w-full h-full object-cover rounded-2xs" />
-                        ) : (
-                          <div className="p-1 space-y-0.5">
-                            <User className="w-5 h-5 text-emerald-900/40 mx-auto" />
-                            <span className="block text-[7px] font-sans font-extrabold text-emerald-950 uppercase tracking-tighter leading-tight">
-                              PASSPORT PHOTO
-                            </span>
+                      {/* CENTERED CUSTOM OFFICE COPY STAMP WATERMARK */}
+                      {isOfficeCopy && (
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none z-30 w-full px-4">
+                          <div className="inline-block border-4 border-dashed border-red-700/80 bg-white/95 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl rotate-[-12deg] shadow-2xl text-center space-y-1 backdrop-blur-[2px]">
+                            <div className="text-2xl sm:text-4xl font-black font-sans uppercase text-red-900 tracking-widest leading-none">
+                              OFFICE COPY
+                            </div>
+                            <div className="text-[9px] sm:text-xs font-extrabold font-sans uppercase text-red-800 tracking-wider">
+                              CARBON COPY — FOR SCHOOL RECORD & ARCHIVE ONLY
+                            </div>
                           </div>
-                        )}
-                      </div>
-                      <span className="text-[8.5px] font-serif font-bold text-emerald-950 uppercase mt-0.5 tracking-wider">
-                        APPLICANT PHOTO
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Certificate Text & Statements */}
-                  <div className="space-y-1 text-xs leading-tight text-slate-900 relative z-10 font-serif">
-                    <p className="flex flex-wrap items-baseline gap-1">
-                      <span>The above mentioned candidate was reading in Class</span>
-                      <span className="border-b border-stone-400 font-bold px-1.5 font-sans">{activeCandidate.courseApplied || '12th'}</span>
-                      <span className="text-stone-400 line-through">Middle</span> /
-                      <span className="text-stone-400 line-through">HS</span> /
-                      <strong className="text-red-900 underline font-extrabold">HSS</strong>
-                      <span>department up to</span>
-                      <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.session || '2025-2026'}</span>.
-                    </p>
-
-                    <p className="flex flex-wrap items-baseline gap-1">
-                      <span>He appeared in Class</span>
-                      <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.courseApplied || '12th'}</span>
-                      <span>examination under</span>
-                      <span className="text-stone-400 line-through">Cluster</span> /
-                      <span className="text-stone-400 line-through">School</span> /
-                      <strong className="text-red-900 underline font-extrabold">Board</strong>
-                      <span>Roll No.</span>
-                      <span className="border-b border-stone-400 font-bold px-1.5 font-mono">{activeCandidate.assignedRollNumber || activeCandidate.id}</span>
-                      <span>and was declared</span>
-                      <strong className="text-red-900 underline font-extrabold">Pass</strong> /
-                      <span className="text-stone-400 line-through">Fail</span> /
-                      <span className="text-stone-400 line-through">Compartment</span>.
-                    </p>
-
-                    <p className="flex items-baseline gap-2">
-                      <span>Session</span>
-                      <span className="border-b border-stone-400 font-bold px-2">{activeCandidate.session || '2025-2026'}</span>
-                      <span>— He has paid all the dues.</span>
-                    </p>
-
-                    <p className="flex items-baseline gap-2">
-                      <span className="shrink-0 font-bold">Residential Address:</span>
-                      <span className="border-b border-stone-400 flex-1 font-bold px-1.5">{activeCandidate.address || 'Ladhoo Pampore'}</span>
-                      <span className="shrink-0 font-bold ml-2">District:</span>
-                      <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.district || 'Pulwama'}</span>
-                    </p>
-
-                    <p className="flex items-baseline gap-2">
-                      <span className="shrink-0">Character of Candidate:</span>
-                      <strong className="font-bold text-slate-900 text-xs">{activeCandidate.conductRating || 'Very Good'}</strong>
-                    </p>
-
-                    <p className="flex items-baseline gap-2">
-                      <span className="shrink-0">Games Offered:</span>
-                      <span className="border-b border-stone-400 flex-1 font-bold px-1.5">Cricket, Football, Athletics</span>
-                    </p>
-                  </div>
-
-                  {/* Marks Summary Box */}
-                  <div className="border border-emerald-900 rounded p-1.5 bg-emerald-50/20 relative z-10 mt-1">
-                    <div className="grid grid-cols-3 gap-1 text-center font-serif text-xs">
-                      {(() => {
-                        const docGrade = calculateGradeAndPercentage(activeCandidate.marksObtained || 450, activeCandidate.totalMarks || 500);
-                        return (
-                          <>
-                            <div>
-                              <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">MARKS OBTAINED</span>
-                              <span className="font-bold text-emerald-950 text-xs font-mono">{activeCandidate.marksObtained || 450} / {activeCandidate.totalMarks || 500}</span>
-                            </div>
-
-                            <div className="border-x border-emerald-900/30 px-1">
-                              <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">GRADE</span>
-                              <span className="font-bold text-slate-900 text-xs font-mono">{activeCandidate.grade || docGrade.grade}</span>
-                            </div>
-
-                            <div>
-                              <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">% OF MARKS</span>
-                              <span className="font-bold text-slate-900 text-xs font-mono">
-                                {activeCandidate.percentage || docGrade.percentageFormatted}%
-                              </span>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Signatures & Seal */}
-                <div className="pt-4 sm:pt-5 grid grid-cols-4 gap-2 text-center text-xs font-serif font-bold text-slate-800 relative z-10">
-                  <div className="space-y-2">
-                    <div className="border-b border-stone-500 w-16 sm:w-20 mx-auto"></div>
-                    <span className="text-[10px]">I/C</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="border-b border-stone-500 w-16 sm:w-20 mx-auto"></div>
-                    <span className="text-[10px]">CHECKED BY</span>
-                  </div>
-
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="w-10 h-10 rounded-full border border-dashed border-stone-400 flex items-center justify-center p-0.5 text-[7px] font-sans text-stone-400 text-center uppercase tracking-tighter leading-tight">
-                      OFFICE SEAL
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="border-b border-stone-900 w-16 sm:w-24 mx-auto"></div>
-                    <span className="font-black text-slate-900 text-[10px] uppercase">PRINCIPAL</span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* DOCUMENT 1B: DISCHARGE CERTIFICATE (STANDARD SCHOOL FORMAT) */}
-        {docType === 'discharge' && dcFormat === 'standard' && (
-          <div className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl rounded-sm border-2 border-amber-900/20 text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-full">
-            {/* Ornamental Frame Border */}
-            <div className="discharge-outer-frame border-4 border-double border-amber-900/40 p-3 sm:p-4 relative flex flex-col justify-between">
-              
-              <div className="space-y-3">
-                {/* Header */}
-                <div className="text-center space-y-0.5 border-b-2 border-amber-900/30 pb-2">
-                  <p className="text-[10px] sm:text-xs font-sans font-bold text-amber-900 uppercase tracking-widest">Govt. Boys Higher Secondary School</p>
-                  <h1 className="text-lg sm:text-xl font-black uppercase text-amber-950 font-serif">OFFICE OF THE PRINCIPAL</h1>
-                  <p className="text-[11px] font-sans text-slate-600">Ladhoo Pampore, Pulwama, J&K</p>
-                  <div className="mt-1 inline-block bg-amber-900 text-white px-3 py-0.5 text-xs font-sans font-extrabold uppercase tracking-widest rounded-sm">
-                    DISCHARGE / TRANSFER CERTIFICATE
-                  </div>
-                </div>
-
-                {/* Certificate Meta Bar + Photograph Box */}
-                <div className="flex flex-row items-center justify-between gap-3 border-b border-dashed border-amber-900/30 pb-2">
-                  <div className="space-y-1 text-xs font-sans font-bold text-slate-700 flex-1">
-                    <div>Cert No: <span className="font-mono text-amber-900">DC-{activeCandidate.id.replace('ADM-', '')}-2026</span></div>
-                    <div>Admission / Roll No: <span className="font-mono text-slate-900">{activeCandidate.assignedRollNumber || activeCandidate.id}</span></div>
-                    <div>Date of Issue: <span className="font-mono text-slate-900">{new Date().toISOString().split('T')[0]}</span></div>
-                  </div>
-
-                  {/* Applicant Photograph Frame (Right Side) */}
-                  <div className="shrink-0 flex flex-col items-center">
-                    <div className="w-24 h-28 border-2 border-amber-900/60 rounded bg-amber-50/40 p-0.5 flex flex-col items-center justify-center shadow-sm text-center relative overflow-hidden bg-white">
-                      {activeCandidate.photoUrl ? (
-                        <img src={activeCandidate.photoUrl} alt={activeCandidate.fullName} className="w-full h-full object-cover rounded-2xs" />
-                      ) : (
-                        <div className="p-1 space-y-0.5">
-                          <User className="w-6 h-6 text-amber-900/40 mx-auto" />
-                          <span className="block text-[7px] font-sans font-bold text-amber-900/80 uppercase tracking-tight">AFFIX PASSPORT PHOTO</span>
                         </div>
                       )}
+
+                      <div className="space-y-2 relative z-10">
+                        {/* Header Emblem & Title */}
+                        <div className="text-center space-y-0.5 relative z-10">
+                          <div className="w-10 h-10 rounded-full border-2 border-emerald-900 mx-auto flex items-center justify-center p-0.5 bg-emerald-50/50">
+                            <div className="w-full h-full rounded-full border border-emerald-900 flex items-center justify-center">
+                              <span className="text-emerald-900 font-bold text-[9px] font-serif">GBHSS</span>
+                            </div>
+                          </div>
+
+                          <p className="text-[9px] font-serif tracking-[0.2em] text-slate-700 font-bold uppercase mt-0.5">
+                            OFFICE OF THE PRINCIPAL
+                          </p>
+                          <h1 className="text-lg sm:text-xl font-black uppercase text-emerald-950 font-serif tracking-tight">
+                            GOVT. BOYS HIGHER SECONDARY SCHOOL
+                          </h1>
+                          <p className="text-[11px] font-serif font-semibold text-emerald-900 tracking-wider">
+                            LADHU PAMPORE, PULWAMA, KASHMIR
+                          </p>
+
+                          {/* Red Framed Title Box + Copy Badge */}
+                          <div className="pt-0.5 flex flex-col items-center gap-1">
+                            <div className="inline-block border border-amber-800/70 bg-amber-50/30 px-4 py-0.5 rounded shadow-sm">
+                              <span className="text-red-900 font-serif font-extrabold text-xs sm:text-sm tracking-widest uppercase">
+                                DISCHARGE CERTIFICATE
+                              </span>
+                            </div>
+                            {isOfficeCopy ? (
+                              <span className="inline-block bg-red-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-red-900">
+                                🏛️ OFFICE COPY (CARBON COPY)
+                              </span>
+                            ) : (
+                              <span className="inline-block bg-blue-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-blue-900">
+                                🎓 STUDENT COPY (ORIGINAL)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* C. No. & Reg No., Admission No. & Date */}
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-serif relative z-10">
+                          <div className="flex items-baseline">
+                            <span className="font-bold text-slate-800 shrink-0">C. No.</span>
+                            <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.id}</span>
+                          </div>
+                          <div className="flex items-baseline">
+                            <span className="font-bold text-slate-800 shrink-0">Reg. No.</span>
+                            <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.enrolmentNumber || `REG-${activeCandidate.id}`}</span>
+                          </div>
+                          <div className="flex items-baseline">
+                            <span className="font-bold text-slate-800 shrink-0">Admission No.</span>
+                            <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{activeCandidate.bankChallanNo || activeCandidate.id}</span>
+                          </div>
+                          <div className="flex items-baseline">
+                            <span className="font-bold text-slate-800 shrink-0">Date of Issue</span>
+                            <span className="border-b border-stone-400 flex-1 ml-2 font-mono px-1.5 text-slate-900">{new Date().toISOString().split('T')[0]}</span>
+                          </div>
+                        </div>
+
+                        {/* Personal Details Boxes + Photograph Frame on Right Side */}
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-2 relative z-10 items-center">
+                          <div className="md:col-span-8 space-y-1 text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 font-semibold text-slate-800 shrink-0">Name</span>
+                              <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
+                                {activeCandidate.fullName}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 font-semibold text-slate-800 shrink-0">Father's Name</span>
+                              <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
+                                {activeCandidate.fatherName}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 font-semibold text-slate-800 shrink-0">Mother's Name</span>
+                              <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
+                                {activeCandidate.motherName || 'N/A'}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 font-semibold text-slate-800 shrink-0">D.O.B. (figures)</span>
+                              <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 font-mono text-xs">
+                                {activeCandidate.dob || '2005-06-14'}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 font-semibold text-slate-800 shrink-0">Permanent Address</span>
+                              <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs truncate">
+                                {activeCandidate.address || 'Ladhoo Pampore'}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="w-24 font-semibold text-slate-800 shrink-0">District</span>
+                              <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
+                                {activeCandidate.district || (activeCandidate.address?.toLowerCase().includes('pulwama') ? 'Pulwama' : 'Pulwama')}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Photograph Box (Right Side of Certificate) */}
+                          <div className="md:col-span-4 flex flex-col items-center justify-center md:items-end">
+                            <div className="w-24 h-28 border-2 border-emerald-900 rounded-sm bg-emerald-50/20 p-0.5 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden bg-white">
+                              {activeCandidate.photoUrl ? (
+                                <img src={activeCandidate.photoUrl} alt={activeCandidate.fullName} className="w-full h-full object-cover rounded-2xs" />
+                              ) : (
+                                <div className="p-1 space-y-0.5">
+                                  <User className="w-5 h-5 text-emerald-900/40 mx-auto" />
+                                  <span className="block text-[7px] font-sans font-extrabold text-emerald-950 uppercase tracking-tighter leading-tight">
+                                    PASSPORT PHOTO
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[8.5px] font-serif font-bold text-emerald-950 uppercase mt-0.5 tracking-wider">
+                              APPLICANT PHOTO
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Certificate Text & Statements */}
+                        <div className="space-y-1 text-xs leading-tight text-slate-900 relative z-10 font-serif">
+                          <p className="flex flex-wrap items-baseline gap-1">
+                            <span>The above mentioned candidate was reading in Class</span>
+                            <span className="border-b border-stone-400 font-bold px-1.5 font-sans">{activeCandidate.courseApplied || '12th'}</span>
+                            <span className="text-stone-400 line-through">Middle</span> /
+                            <span className="text-stone-400 line-through">HS</span> /
+                            <strong className="text-red-900 underline font-extrabold">HSS</strong>
+                            <span>department up to</span>
+                            <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.session || '2025-2026'}</span>.
+                          </p>
+
+                          <p className="flex flex-wrap items-baseline gap-1">
+                            <span>He appeared in Class</span>
+                            <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.courseApplied || '12th'}</span>
+                            <span>examination under</span>
+                            <span className="text-stone-400 line-through">Cluster</span> /
+                            <span className="text-stone-400 line-through">School</span> /
+                            <strong className="text-red-900 underline font-extrabold">Board</strong>
+                            <span>Roll No.</span>
+                            <span className="border-b border-stone-400 font-bold px-1.5 font-mono">{activeCandidate.assignedRollNumber || activeCandidate.id}</span>
+                            <span>and was declared</span>
+                            <strong className="text-red-900 underline font-extrabold">Pass</strong> /
+                            <span className="text-stone-400 line-through">Fail</span> /
+                            <span className="text-stone-400 line-through">Compartment</span>.
+                          </p>
+
+                          <p className="flex items-baseline gap-2">
+                            <span>Session</span>
+                            <span className="border-b border-stone-400 font-bold px-2">{activeCandidate.session || '2025-2026'}</span>
+                            <span>— He has paid all the dues.</span>
+                          </p>
+
+                          <p className="flex items-baseline gap-2">
+                            <span className="shrink-0">Character of Candidate:</span>
+                            <strong className="font-bold text-slate-900 text-xs">{activeCandidate.conductRating || 'Very Good'}</strong>
+                          </p>
+
+                          <p className="flex items-baseline gap-2">
+                            <span className="shrink-0">Games Offered:</span>
+                            <span className="border-b border-stone-400 flex-1 font-bold px-1.5">Cricket, Football, Athletics</span>
+                          </p>
+                        </div>
+
+                        {/* Marks Summary Box */}
+                        <div className="border border-emerald-900 rounded p-1.5 bg-emerald-50/20 relative z-10 mt-1">
+                          <div className="grid grid-cols-3 gap-1 text-center font-serif text-xs">
+                            {(() => {
+                              const docGrade = calculateGradeAndPercentage(activeCandidate.marksObtained || 450, activeCandidate.totalMarks || 500);
+                              return (
+                                <>
+                                  <div>
+                                    <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">MARKS OBTAINED</span>
+                                    <span className="font-bold text-emerald-950 text-xs font-mono">{activeCandidate.marksObtained || 450} / {activeCandidate.totalMarks || 500}</span>
+                                  </div>
+
+                                  <div className="border-x border-emerald-900/30 px-1">
+                                    <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">GRADE</span>
+                                    <span className="font-bold text-slate-900 text-xs font-mono">{activeCandidate.grade || docGrade.grade}</span>
+                                  </div>
+
+                                  <div>
+                                    <span className="text-[8.5px] font-bold text-emerald-950 uppercase tracking-wider block mb-0.5">% OF MARKS</span>
+                                    <span className="font-bold text-slate-900 text-xs font-mono">
+                                      {activeCandidate.percentage || docGrade.percentageFormatted}%
+                                    </span>
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Signatures & Seal */}
+                      <div className="pt-4 sm:pt-5 grid grid-cols-4 gap-2 text-center text-xs font-serif font-bold text-slate-800 relative z-10">
+                        <div className="space-y-2">
+                          <div className="border-b border-stone-500 w-16 sm:w-20 mx-auto"></div>
+                          <span className="text-[10px]">I/C</span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="border-b border-stone-500 w-16 sm:w-20 mx-auto"></div>
+                          <span className="text-[10px]">CHECKED BY</span>
+                        </div>
+
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="w-10 h-10 rounded-full border border-dashed border-stone-400 flex items-center justify-center p-0.5 text-[7px] font-sans text-stone-400 text-center uppercase tracking-tighter leading-tight">
+                            OFFICE SEAL
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="border-b border-stone-900 w-16 sm:w-24 mx-auto"></div>
+                          <span className="font-black text-slate-900 text-[10px] uppercase">PRINCIPAL</span>
+                        </div>
+                      </div>
+
                     </div>
-                    <span className="text-[8.5px] font-sans font-extrabold text-amber-950 uppercase mt-0.5 tracking-wider">APPLICANT PHOTO</span>
                   </div>
                 </div>
+              );
 
-                {/* Body Text */}
-                <div className="text-xs sm:text-sm leading-relaxed text-slate-800 space-y-2.5 font-serif text-justify pt-0.5">
-                  <p>
-                    This is to certify that <span className="font-extrabold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fullName}</span>, 
-                    Son/Daughter of Shri <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fatherName}</span> 
-                    and Smt. <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.motherName || 'N/A'}</span>, 
-                    resident of <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.address || 'Ladhoo Pampore'}</span>, 
-                    District <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.district || 'Pulwama'}</span>, 
-                    bearing Assigned Roll Number <span className="font-mono font-bold text-slate-950">{activeCandidate.assignedRollNumber || '26BSC101'}</span> 
-                    and Enrolment Number <span className="font-mono font-bold text-slate-950">{activeCandidate.enrolmentNumber || 'EN202600101'}</span>, 
-                    was a bona fide student of this Institution in the <span className="font-bold text-slate-950">{activeCandidate.courseApplied}</span> program during the session <span className="font-bold">{activeCandidate.session}</span>.
-                  </p>
+              const renderStandard = (isOfficeCopy: boolean) => (
+                <div key={isOfficeCopy ? 'std-office' : 'std-student'} className="printable-discharge-page w-full max-w-[210mm] mx-auto bg-white p-4 sm:p-5 shadow-2xl rounded-sm border-2 border-amber-900/20 text-slate-900 font-serif relative print:shadow-none print:p-0 print:max-w-none print:w-full my-2">
+                  {/* Ornamental Frame Border */}
+                  <div className="discharge-outer-frame border-4 border-double border-amber-900/40 p-3 sm:p-4 relative flex flex-col justify-between overflow-hidden">
+                    
+                    {/* CENTERED CUSTOM OFFICE COPY STAMP WATERMARK */}
+                    {isOfficeCopy && (
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none z-30 w-full px-4">
+                        <div className="inline-block border-4 border-dashed border-red-700/80 bg-white/95 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl rotate-[-12deg] shadow-2xl text-center space-y-1 backdrop-blur-[2px]">
+                          <div className="text-2xl sm:text-4xl font-black font-sans uppercase text-red-900 tracking-widest leading-none">
+                            OFFICE COPY
+                          </div>
+                          <div className="text-[9px] sm:text-xs font-extrabold font-sans uppercase text-red-800 tracking-wider">
+                            CARBON COPY — FOR SCHOOL RECORD & ARCHIVE ONLY
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-                  <p>
-                    He/She has cleared all school dues including Tuition Fees, Library Deposits, and Laboratory equipment. 
-                    His/Her general conduct and moral character during his/her stay in this institution has been 
-                    <span className="font-bold text-amber-900"> {activeCandidate.conductRating || 'EXCELLENT'}</span>.
-                  </p>
+                    <div className="space-y-3 relative z-10">
+                      {/* Header */}
+                      <div className="text-center space-y-0.5 border-b-2 border-amber-900/30 pb-2">
+                        <p className="text-[10px] sm:text-xs font-sans font-bold text-amber-900 uppercase tracking-widest">Govt. Boys Higher Secondary School</p>
+                        <h1 className="text-lg sm:text-xl font-black uppercase text-amber-950 font-serif">OFFICE OF THE PRINCIPAL</h1>
+                        <p className="text-[11px] font-sans text-slate-600">Ladhoo Pampore, Pulwama, J&K</p>
+                        <div className="mt-1 flex flex-col items-center gap-1">
+                          <div className="inline-block bg-amber-900 text-white px-3 py-0.5 text-xs font-sans font-extrabold uppercase tracking-widest rounded-sm">
+                            DISCHARGE / TRANSFER CERTIFICATE
+                          </div>
+                          {isOfficeCopy ? (
+                            <span className="inline-block bg-red-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-red-900">
+                              🏛️ OFFICE COPY (CARBON COPY)
+                            </span>
+                          ) : (
+                            <span className="inline-block bg-blue-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-blue-900">
+                              🎓 STUDENT COPY (ORIGINAL)
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                  <p>
-                    <strong className="font-sans text-xs uppercase tracking-wide text-slate-600 block">Reason for Discharge / Leaving:</strong>
-                    <span className="font-medium italic text-slate-900">{activeCandidate.dcReason || 'Completion of prescribed academic course of study / Higher Studies.'}</span>
-                  </p>
-                </div>
-              </div>
+                      {/* Certificate Meta Bar + Photograph Box */}
+                      <div className="flex flex-row items-center justify-between gap-3 border-b border-dashed border-amber-900/30 pb-2">
+                        <div className="space-y-1 text-xs font-sans font-bold text-slate-700 flex-1">
+                          <div>Cert No: <span className="font-mono text-amber-900">DC-{activeCandidate.id.replace('ADM-', '')}-2026</span></div>
+                          <div>Admission / Roll No: <span className="font-mono text-slate-900">{activeCandidate.assignedRollNumber || activeCandidate.id}</span></div>
+                          <div>Date of Issue: <span className="font-mono text-slate-900">{new Date().toISOString().split('T')[0]}</span></div>
+                        </div>
 
-              {/* Signatures & Security QR Code */}
-              <div className="pt-4 flex items-end justify-between border-t border-slate-300 font-sans">
-                {qrUrl && (
-                  <div className="text-center">
-                    <img src={qrUrl} alt="Security QR" className="w-16 h-16 border border-slate-300 p-0.5 mx-auto" />
-                    <p className="text-[8px] font-mono font-bold text-slate-600 mt-0.5">Scan to Verify Record</p>
+                        {/* Applicant Photograph Frame (Right Side) */}
+                        <div className="shrink-0 flex flex-col items-center">
+                          <div className="w-24 h-28 border-2 border-amber-900/60 rounded bg-amber-50/40 p-0.5 flex flex-col items-center justify-center shadow-sm text-center relative overflow-hidden bg-white">
+                            {activeCandidate.photoUrl ? (
+                              <img src={activeCandidate.photoUrl} alt={activeCandidate.fullName} className="w-full h-full object-cover rounded-2xs" />
+                            ) : (
+                              <div className="p-1 space-y-0.5">
+                                <User className="w-6 h-6 text-amber-900/40 mx-auto" />
+                                <span className="block text-[7px] font-sans font-bold text-amber-900/80 uppercase tracking-tight">AFFIX PASSPORT PHOTO</span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-[8.5px] font-sans font-extrabold text-amber-950 uppercase mt-0.5 tracking-wider">APPLICANT PHOTO</span>
+                        </div>
+                      </div>
+
+                      {/* Body Text */}
+                      <div className="text-xs sm:text-sm leading-relaxed text-slate-800 space-y-2.5 font-serif text-justify pt-0.5">
+                        <p>
+                          This is to certify that <span className="font-extrabold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fullName}</span>, 
+                          Son/Daughter of Shri <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fatherName}</span> 
+                          and Smt. <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.motherName || 'N/A'}</span>, 
+                          resident of <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.address || 'Ladhoo Pampore'}</span>, 
+                          District <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.district || 'Pulwama'}</span>, 
+                          bearing Assigned Roll Number <span className="font-mono font-bold text-slate-950">{activeCandidate.assignedRollNumber || '26BSC101'}</span> 
+                          and Enrolment Number <span className="font-mono font-bold text-slate-950">{activeCandidate.enrolmentNumber || 'EN202600101'}</span>, 
+                          was a bona fide student of this Institution in the <span className="font-bold text-slate-950">{activeCandidate.courseApplied}</span> program during the session <span className="font-bold">{activeCandidate.session}</span>.
+                        </p>
+
+                        <p>
+                          He/She has cleared all school dues including Tuition Fees, Library Deposits, and Laboratory equipment. 
+                          His/Her general conduct and moral character during his/her stay in this institution has been 
+                          <span className="font-bold text-amber-900"> {activeCandidate.conductRating || 'EXCELLENT'}</span>.
+                        </p>
+
+                        <p>
+                          <strong className="font-sans text-xs uppercase tracking-wide text-slate-600 block">Reason for Discharge / Leaving:</strong>
+                          <span className="font-medium italic text-slate-900">{activeCandidate.dcReason || 'Completion of prescribed academic course of study / Higher Studies.'}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Signatures & Security QR Code */}
+                    <div className="pt-4 flex items-end justify-between border-t border-slate-300 font-sans relative z-10">
+                      {qrUrl && (
+                        <div className="text-center">
+                          <img src={qrUrl} alt="Security QR" className="w-16 h-16 border border-slate-300 p-0.5 mx-auto" />
+                          <p className="text-[8px] font-mono font-bold text-slate-600 mt-0.5">Scan to Verify Record</p>
+                        </div>
+                      )}
+
+                      <div className="text-center space-y-1">
+                        <div className="h-6 border-b border-slate-400 w-28 mx-auto"></div>
+                        <p className="text-[10px] font-bold text-slate-900">Head Clerk / Academic Cell</p>
+                      </div>
+
+                      <div className="text-center space-y-1">
+                        <div className="h-6 border-b border-slate-800 w-36 mx-auto flex items-center justify-center">
+                          <span className="text-[10px] font-serif italic text-amber-900 font-bold opacity-80">[ Principal Seal & Signature ]</span>
+                        </div>
+                        <p className="text-[11px] font-extrabold text-slate-900 uppercase">Principal</p>
+                        <p className="text-[9px] text-slate-500">Govt. Boys HSS Ladhu, Pampore</p>
+                      </div>
+                    </div>
                   </div>
-                )}
-
-                <div className="text-center space-y-1">
-                  <div className="h-6 border-b border-slate-400 w-28 mx-auto"></div>
-                  <p className="text-[10px] font-bold text-slate-900">Head Clerk / Academic Cell</p>
                 </div>
+              );
 
-                <div className="text-center space-y-1">
-                  <div className="h-6 border-b border-slate-800 w-36 mx-auto flex items-center justify-center">
-                    <span className="text-[10px] font-serif italic text-amber-900 font-bold opacity-80">[ Principal Seal & Signature ]</span>
-                  </div>
-                  <p className="text-[11px] font-extrabold text-slate-900 uppercase">Principal</p>
-                  <p className="text-[9px] text-slate-500">Govt. Boys HSS Ladhu, Pampore</p>
+              const renderDoc = (isOfficeCopy: boolean) => 
+                dcFormat === 'ladhu' ? renderLadhu(isOfficeCopy) : renderStandard(isOfficeCopy);
+
+              return (
+                <div className="w-full space-y-6">
+                  {/* Student Copy (Original) */}
+                  {(dischargeCopyType === 'both' || dischargeCopyType === 'student') && renderDoc(false)}
+
+                  {/* Cut / Tear Divider Line when printing both */}
+                  {dischargeCopyType === 'both' && (
+                    <div className="my-6 border-t-2 border-dashed border-stone-400 relative text-center print:my-4 print:break-inside-avoid">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-stone-200 text-stone-700 font-mono text-[10px] font-bold px-3 py-0.5 rounded-full border border-stone-300 flex items-center gap-1.5 shadow-xs print:bg-white">
+                        ✂ TEAR / CUT HERE (STUDENT COPY ABOVE — OFFICE CARBON COPY BELOW)
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Custom Office Copy (Carbon Copy) */}
+                  {(dischargeCopyType === 'both' || dischargeCopyType === 'office') && renderDoc(true)}
                 </div>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         )}
 
