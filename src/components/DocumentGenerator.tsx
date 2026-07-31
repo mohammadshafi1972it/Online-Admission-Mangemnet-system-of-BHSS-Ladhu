@@ -321,7 +321,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                       : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                   }`}
                 >
-                  📄 2-in-1 (Student Copy + Office Carbon Copy)
+                  📄 2-in-1 (Original + Office Carbon Copy)
                 </button>
                 <button
                   type="button"
@@ -343,7 +343,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                       : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                   }`}
                 >
-                  🎓 Student Copy Only (Original)
+                  📜 Original Certificate Only
                 </button>
               </div>
             </div>
@@ -373,14 +373,14 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                         </span>
                       </div>
 
-                      {/* CENTERED CUSTOM OFFICE COPY STAMP WATERMARK */}
+                      {/* LIGHT CENTERED OFFICE COPY WATERMARK */}
                       {isOfficeCopy && (
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none z-30 w-full px-4">
-                          <div className="inline-block border-4 border-dashed border-red-700/80 bg-white/95 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl rotate-[-12deg] shadow-2xl text-center space-y-1 backdrop-blur-[2px]">
-                            <div className="text-2xl sm:text-4xl font-black font-sans uppercase text-red-900 tracking-widest leading-none">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none z-0 opacity-15 rotate-[-12deg] w-full px-4">
+                          <div className="inline-block border-4 border-dashed border-red-700 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl text-center space-y-1">
+                            <div className="text-3xl sm:text-5xl font-black font-sans uppercase text-red-900 tracking-widest leading-none">
                               OFFICE COPY
                             </div>
-                            <div className="text-[9px] sm:text-xs font-extrabold font-sans uppercase text-red-800 tracking-wider">
+                            <div className="text-[10px] sm:text-xs font-black font-sans uppercase text-red-800 tracking-wider">
                               CARBON COPY — FOR SCHOOL RECORD & ARCHIVE ONLY
                             </div>
                           </div>
@@ -413,13 +413,9 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                                 DISCHARGE CERTIFICATE
                               </span>
                             </div>
-                            {isOfficeCopy ? (
+                            {isOfficeCopy && (
                               <span className="inline-block bg-red-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-red-900">
                                 🏛️ OFFICE COPY (CARBON COPY)
-                              </span>
-                            ) : (
-                              <span className="inline-block bg-blue-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-blue-900">
-                                🎓 STUDENT COPY (ORIGINAL)
                               </span>
                             )}
                           </div>
@@ -619,14 +615,14 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                   {/* Ornamental Frame Border */}
                   <div className="discharge-outer-frame border-4 border-double border-amber-900/40 p-3 sm:p-4 relative flex flex-col justify-between overflow-hidden">
                     
-                    {/* CENTERED CUSTOM OFFICE COPY STAMP WATERMARK */}
+                    {/* LIGHT CENTERED OFFICE COPY WATERMARK */}
                     {isOfficeCopy && (
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none z-30 w-full px-4">
-                        <div className="inline-block border-4 border-dashed border-red-700/80 bg-white/95 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl rotate-[-12deg] shadow-2xl text-center space-y-1 backdrop-blur-[2px]">
-                          <div className="text-2xl sm:text-4xl font-black font-sans uppercase text-red-900 tracking-widest leading-none">
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none z-0 opacity-15 rotate-[-12deg] w-full px-4">
+                        <div className="inline-block border-4 border-dashed border-red-700 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl text-center space-y-1">
+                          <div className="text-3xl sm:text-5xl font-black font-sans uppercase text-red-900 tracking-widest leading-none">
                             OFFICE COPY
                           </div>
-                          <div className="text-[9px] sm:text-xs font-extrabold font-sans uppercase text-red-800 tracking-wider">
+                          <div className="text-[10px] sm:text-xs font-black font-sans uppercase text-red-800 tracking-wider">
                             CARBON COPY — FOR SCHOOL RECORD & ARCHIVE ONLY
                           </div>
                         </div>
@@ -643,13 +639,9 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                           <div className="inline-block bg-amber-900 text-white px-3 py-0.5 text-xs font-sans font-extrabold uppercase tracking-widest rounded-sm">
                             DISCHARGE / TRANSFER CERTIFICATE
                           </div>
-                          {isOfficeCopy ? (
+                          {isOfficeCopy && (
                             <span className="inline-block bg-red-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-red-900">
                               🏛️ OFFICE COPY (CARBON COPY)
-                            </span>
-                          ) : (
-                            <span className="inline-block bg-blue-800 text-white font-sans font-black text-[9px] uppercase px-3 py-0.5 rounded shadow-xs tracking-wider border border-blue-900">
-                              🎓 STUDENT COPY (ORIGINAL)
                             </span>
                           )}
                         </div>
@@ -743,7 +735,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                   {dischargeCopyType === 'both' && (
                     <div className="my-6 border-t-2 border-dashed border-stone-400 relative text-center print:my-4 print:break-inside-avoid">
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-stone-200 text-stone-700 font-mono text-[10px] font-bold px-3 py-0.5 rounded-full border border-stone-300 flex items-center gap-1.5 shadow-xs print:bg-white">
-                        ✂ TEAR / CUT HERE (STUDENT COPY ABOVE — OFFICE CARBON COPY BELOW)
+                        ✂ TEAR / CUT HERE (ORIGINAL CERTIFICATE ABOVE — OFFICE CARBON COPY BELOW)
                       </span>
                     </div>
                   )}
