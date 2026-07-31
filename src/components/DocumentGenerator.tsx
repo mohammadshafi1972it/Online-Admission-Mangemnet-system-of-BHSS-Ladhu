@@ -442,8 +442,8 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                         </div>
 
                         {/* Personal Details Boxes + Photograph Frame on Right Side */}
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-2 relative z-10 items-center">
-                          <div className="md:col-span-8 space-y-1 text-xs">
+                        <div className="flex flex-row items-center justify-between gap-3 relative z-10">
+                          <div className="flex-1 space-y-1 text-xs">
                             <div className="flex items-center gap-2">
                               <span className="w-24 font-semibold text-slate-800 shrink-0">Name</span>
                               <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
@@ -487,8 +487,8 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                             </div>
                           </div>
 
-                          {/* Photograph Box (Right Side of Certificate) */}
-                          <div className="md:col-span-4 flex flex-col items-center justify-center md:items-end">
+                          {/* Photograph Box (Right Side of Candidate Data) */}
+                          <div className="shrink-0 flex flex-col items-center pl-1">
                             <div className="w-24 h-28 border-2 border-emerald-900 rounded-sm bg-emerald-50/20 p-0.5 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden bg-white">
                               {activeCandidate.photoUrl ? (
                                 <img src={activeCandidate.photoUrl} alt={activeCandidate.fullName} className="w-full h-full object-cover rounded-2xs" />
@@ -741,7 +741,11 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                   )}
 
                   {/* Custom Office Copy (Carbon Copy) */}
-                  {(dischargeCopyType === 'both' || dischargeCopyType === 'office') && renderDoc(true)}
+                  {(dischargeCopyType === 'both' || dischargeCopyType === 'office') && (
+                    <div className={dischargeCopyType === 'both' ? 'print-page-break' : ''}>
+                      {renderDoc(true)}
+                    </div>
+                  )}
                 </div>
               );
             })()}
