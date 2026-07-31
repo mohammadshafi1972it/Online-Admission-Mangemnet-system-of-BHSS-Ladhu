@@ -12,6 +12,7 @@ export interface Candidate {
   mobile: string;
   aadharNumber: string;
   address: string;
+  district?: string;
   previousQualification: string;
   boardUniversity: string;
   prevRollNumber: string;

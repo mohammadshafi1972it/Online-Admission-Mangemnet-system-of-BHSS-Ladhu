@@ -401,6 +401,20 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                           {activeCandidate.dob || '2005-06-14'}
                         </div>
                       </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="w-24 font-semibold text-slate-800 shrink-0">Address</span>
+                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs truncate">
+                          {activeCandidate.address || 'Ladhoo Pampore'}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="w-24 font-semibold text-slate-800 shrink-0">District</span>
+                        <div className="flex-1 border border-stone-300 rounded py-0.5 px-2 bg-stone-50/50 font-bold text-slate-900 text-xs">
+                          {activeCandidate.district || (activeCandidate.address?.toLowerCase().includes('pulwama') ? 'Pulwama' : 'Pulwama')}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Photograph Box (Right Side of Certificate) */}
@@ -457,8 +471,10 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                     </p>
 
                     <p className="flex items-baseline gap-2">
-                      <span className="shrink-0">Attendance:</span>
-                      <span className="border-b border-stone-400 flex-1 font-bold font-mono px-1.5">188 / 210 Days (89.5%)</span>
+                      <span className="shrink-0 font-bold">Residential Address:</span>
+                      <span className="border-b border-stone-400 flex-1 font-bold px-1.5">{activeCandidate.address || 'Ladhoo Pampore'}</span>
+                      <span className="shrink-0 font-bold ml-2">District:</span>
+                      <span className="border-b border-stone-400 font-bold px-1.5">{activeCandidate.district || 'Pulwama'}</span>
                     </p>
 
                     <p className="flex items-baseline gap-2">
@@ -578,6 +594,8 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                     This is to certify that <span className="font-extrabold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fullName}</span>, 
                     Son/Daughter of Shri <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.fatherName}</span> 
                     and Smt. <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.motherName || 'N/A'}</span>, 
+                    resident of <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.address || 'Ladhoo Pampore'}</span>, 
+                    District <span className="font-bold text-slate-950 underline underline-offset-4 decoration-amber-900/40">{activeCandidate.district || 'Pulwama'}</span>, 
                     bearing Assigned Roll Number <span className="font-mono font-bold text-slate-950">{activeCandidate.assignedRollNumber || '26BSC101'}</span> 
                     and Enrolment Number <span className="font-mono font-bold text-slate-950">{activeCandidate.enrolmentNumber || 'EN202600101'}</span>, 
                     was a bona fide student of this Institution in the <span className="font-bold text-slate-950">{activeCandidate.courseApplied}</span> program during the session <span className="font-bold">{activeCandidate.session}</span>.
@@ -642,6 +660,8 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                 <p>
                   This is to certify that <span className="font-extrabold text-slate-950 underline underline-offset-4 decoration-indigo-900/40">{activeCandidate.fullName}</span>, 
                   Son/Daughter of <span className="font-bold text-slate-950 underline underline-offset-4 decoration-indigo-900/40">{activeCandidate.fatherName}</span>, 
+                  resident of <span className="font-bold text-slate-950 underline underline-offset-4 decoration-indigo-900/40">{activeCandidate.address || 'Ladhoo Pampore'}</span>, 
+                  District <span className="font-bold text-slate-950 underline underline-offset-4 decoration-indigo-900/40">{activeCandidate.district || 'Pulwama'}</span>, 
                   is/was a regular student of <span className="font-bold text-indigo-950">{activeCandidate.courseApplied}</span> in this school during the session <span className="font-bold">{activeCandidate.session}</span>.
                 </p>
 
@@ -920,7 +940,7 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
 
             <div className="text-sm sm:text-base leading-relaxed text-slate-800 space-y-4 font-serif text-justify">
               <p>
-                This is to certify that <strong className="text-slate-950 underline">{activeCandidate.fullName}</strong>, Son/Daughter of <strong className="text-slate-950">{activeCandidate.fatherName}</strong>, is a bona fide regular student of this school studying in <strong className="text-sky-950">{activeCandidate.courseApplied}</strong> program (Roll No: <span className="font-mono">{activeCandidate.assignedRollNumber || activeCandidate.id}</span>).
+                This is to certify that <strong className="text-slate-950 underline">{activeCandidate.fullName}</strong>, Son/Daughter of <strong className="text-slate-950">{activeCandidate.fatherName}</strong>, resident of <strong className="text-slate-950 underline">{activeCandidate.address || 'Ladhoo Pampore'}</strong>, District <strong className="text-slate-950 underline">{activeCandidate.district || 'Pulwama'}</strong>, is a bona fide regular student of this school studying in <strong className="text-sky-950">{activeCandidate.courseApplied}</strong> program (Roll No: <span className="font-mono">{activeCandidate.assignedRollNumber || activeCandidate.id}</span>).
               </p>
               <p>
                 This certificate is issued upon student request for Official / Educational / Passport / Bank / Scholarship verification purposes.
