@@ -3,7 +3,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 10mm;
   }
 
   html, body, #root {
@@ -118,14 +118,16 @@
   .printable-discharge-page {
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
+    height: 275mm !important;
+    max-height: 275mm !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
     box-sizing: border-box !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .print-page-break {
@@ -134,15 +136,23 @@
   }
 
   .discharge-outer-frame {
+    height: 100% !important;
     padding: 4px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
   }
 
   .discharge-inner-frame {
-    padding: 12px 16px !important;
+    height: 100% !important;
+    padding: 16px 20px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
   }
 
   .library-pass-card {

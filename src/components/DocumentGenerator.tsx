@@ -731,10 +731,10 @@ export const DocumentGenerator: React.FC<DocumentGeneratorProps> = ({
                   {/* Student Copy (Original) */}
                   {(dischargeCopyType === 'both' || dischargeCopyType === 'student') && renderDoc(false)}
 
-                  {/* Cut / Tear Divider Line when printing both */}
+                  {/* Cut / Tear Divider Line on screen when displaying both copies */}
                   {dischargeCopyType === 'both' && (
-                    <div className="my-6 border-t-2 border-dashed border-stone-400 relative text-center print:my-4 print:break-inside-avoid">
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-stone-200 text-stone-700 font-mono text-[10px] font-bold px-3 py-0.5 rounded-full border border-stone-300 flex items-center gap-1.5 shadow-xs print:bg-white">
+                    <div className="my-6 border-t-2 border-dashed border-stone-400 relative text-center print:hidden">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-stone-200 text-stone-700 font-mono text-[10px] font-bold px-3 py-0.5 rounded-full border border-stone-300 flex items-center gap-1.5 shadow-xs">
                         ✂ TEAR / CUT HERE (ORIGINAL CERTIFICATE ABOVE — OFFICE CARBON COPY BELOW)
                       </span>
                     </div>
